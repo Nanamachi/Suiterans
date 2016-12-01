@@ -1,0 +1,31 @@
+--------ja_JP--------
+Suiterans (a.k.a. SimutranSuite)は、フリーの交通シミュレーションゲーム「Simutrans」のアドオン(.pak)ファイルを閲覧・管理可能にするソフトウェアです。
+
+実装予定機能:
+・pakファイルの閲覧
+・pakファイルのリスト化
+・experimental対応
+・Makeobjのwrapper(makeとかpakファイルのマージとかを簡単にできるようにする)
+・アドオンの製作補助(datファイルをGUIで作成可能に)
+・ja.tabの編集機能
+・多言語対応
+・オンラインからのダウンロード機能
+・pak時のバージョン表示
+・緩急坂対応のチェック
+・プラグイン拡張性
+
+--------en_US--------
+Suiterans (a.k.a. SimutranSuite) is the software which can view and manage ".pak" addon file of Simutrans, the free transport simulation game.
+
+expecting features:
+-view .pak files
+-list .pak files
+-compatible for Simutrans-experimental
+-wrap makeobj (easier to make and merge .pak)
+-help to make .pak (GUI dat editor)
+-edit *.tab
+-multi language support
+-download .pak from Internet
+-show version of makeobj which compiled pak file
+-check capablity for single-slope
+-plug-in extendable
