@@ -11,6 +11,9 @@ class PakFile():
         self._bin = self._f.read()
         self.root = PakNode(self._bin[61:])
 
+    def __repr__ (self):
+        return "<Simutrans Pak File '{}'>".format(self._path)
+
 class PakNode():
     def __init__(self, binary): #read .pak and extract into _bin
         [
@@ -18,8 +21,16 @@ class PakNode():
             self.child_count,
             self.data_len,
             self.data_bin,
-            self.child_bin,
+            self.next_bin,
         ] = self.read_header(binary)
+        self.child = []
+        for i in range(self.child_count):
+            self.child.append(PakNode(self.next_bin))
+            self.next_bin = self.child[i].next_bin
+            del self.child[i].next_bin
+
+    def __repr__(self):
+        return "<Simutrans Pak Node: type: {}>".format(self.type)
 
     def read_LE(self, binary, fmt):
         if fmt == 'uint8':
