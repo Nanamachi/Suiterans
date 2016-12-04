@@ -1,0 +1,87 @@
+"BRIDGE(BRDG)"
+
+"BUILDING(BUIL)"
+
+"CITYCAR(CCAR)"
+
+"CROSSING(CRSS)"
+
+"CURSOR(CURS)"
+
+"FACTORY(FACT)"
+
+"FFIELD(FFIE)"
+
+"FFLDCLASS(FFCL)"
+
+"FIELD(FIEL)"
+
+"FPRODUCT(FPRO)"
+
+"FSMOKE(FSMO)"
+
+"FSUPPLIER(FSUP)"
+
+"GOOD(GOOD)"
+
+"GROUND(GRND)"
+
+"GROUNDOBJ(GOBJ)"
+
+"IMAGE(IMG0)"
+
+"IMAGELIST1(IMG1)"
+
+"IMAGELIST2(IMG2)"
+
+"MENU(MENU)"
+
+"MISCIMAGES(MISC)"
+
+"PEDESTRIAN(PASS)"
+
+"ROAD_SIGN(SIGN)"
+
+"ROOT(ROOT)"
+
+"SMOKE(SMOK)"
+
+"SOUND(SOUN)"
+
+"SYMBOL(SYMB)"
+
+"TEXT(TEXT)"
+
+"TILE(TILE)"
+
+"TREE(TREE)"
+
+"TUNNEL(TUNL)"
+
+"VEHICLE(VHCL)",,,
+,,,
+"cost","cost","uint32",
+"payload","zuladung","uint16",
+"loading_time","loading_time","uint16","from v9"
+"top_speed","topspeed","uint16",
+"weight","gewicht","uint32","until v10 uint16 and unit is ton"
+"axle_load","axle_load","uint16","from v9"
+"power","leistung","uint32","uint16 until v5"
+"runningcost","running_cost","uint16",
+"fixcost","fixed_cost","uint32","from v9 and uint16 until v10"
+"intro","intro_date","uint16",
+"retire","obsolete_date","uint16","from v3"
+"gear","gear","uint16","uint8 until v5"
+"waytype","wt","uint8",
+"sound","sound","sint8",
+"engine_type","engine_type","uint8",
+"len","len","uint8","from v7"
+"constraint[pr]","vorgaenger","uint8",
+"constraint[nx]","nachfolger","uint8",
+"FreightImage","freight_image_type","uint8","from v8"
+
+"WAY(WAY0)"
+
+"WAY(WYOB)"
+
+"XREF(XREF)"
