@@ -26,8 +26,8 @@
 "enables","enables","uint8","from v3"
 "flags","flags","uint8",
 "chance","chance","uint8",
-"intro_date","intro_date","uint16","from v2"
-"obsolete_date","obsolete_date","uint16","from v2"
+"intro","intro_date","uint16","from v2"
+"retire","obsolete_date","uint16","from v2"
 "animation_time","animation_time","uint16","from v5"
 "capacity","capacity","uint16","from v8"
 "maintenance","maintenance","sint32","from v8"
@@ -36,11 +36,46 @@
 ,,,
 "CITYCAR(CCAR)",,,
 ,,,
+"weight","gewichtung","uint16",
+"max_speed","geschw","uint16",
+"intro","intro_date","uint16",
+"retire","obsolete_date","uint16",
+,,,
 "CROSSING(CRSS)",,,
+,,,
+"waytype0","wegtyp1",,
+"waytype1","wegtyp2",,
+"top_speed0","topspeed1",,
+"top_speed1","topspeed2",,
+"open_animation_time","open_animation_time",,
+"closed_animation_time","closed_animation_time",,
+"sound","sound",,
+"intro_date","intro_date",,
+"obsolete_date","obsolete_date",,
 ,,,
 "CURSOR(CURS)",,,
 ,,,
 "FACTORY(FACT)",,,
+,,,
+,"platzierung","uint16",
+,"produktivitaet","uint16",
+,"bereich","uint16",
+,"gewichtung","uint16",
+,"kannfarbe","uint8",
+,"fields","uint8",
+,"lieferanten","uint16",
+,"produkte","uint16",
+,"pax_level","uint16",
+,"expand_probability","uint16","from v3 (111.0)"
+,"expand_minimum","uint16","from v3 (111.0)"
+,"expand_range","uint16","from v3 (111.0)"
+,"expand_times","uint16","from v3 (111.0)"
+,"electric_boost","uint16","from v3 (111.0)"
+,"pax_boost","uint16","from v3 (111.0)"
+,"mail_boost","uint16","from v3 (111.0)"
+,"electric_amount","uint16","from v3 (111.0)"
+,"pax_demand","uint16","from v3 (111.0)"
+,"mail_demand","uint16","from v3 (111.0)"
 ,,,
 "FFIELD(FFIE)",,,
 ,,,

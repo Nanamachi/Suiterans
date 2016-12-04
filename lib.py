@@ -36,3 +36,30 @@ OBJ_TYPE = {
     b'WYOB'     : 'obj_way'         ,
     b'XREF'     : 'obj_xref'
 }
+
+VHCLparam = (
+#               attrname,   type,       hook,            version,    None
+    lambda v:  ('cost',     'uint32',   lambda x: x/100) if v > 0    else None,
+    lambda v:  ('payload',  'uint16',   lambda x: x)     if v > 0    else None,
+    lambda v:  ('load_time','uint16',   lambda x: x)     if v > 8    else None,
+    lambda v:  ('top_speed','uint16',   lambda x: x)     if v > 0    else None,
+    lambda v:  ('weight',   'uint32',   lambda x: x/1000)if v > 11   else None,
+    lambda v:  ('weight',   'uint16',   lambda x: x)     if v < 11   else None,
+    lambda v:  ('axle_load','uint16',   lambda x: x)     if v > 8    else None,
+    lambda v:  ('power',    'uint32',   lambda x: x)     if v > 5    else None,
+    lambda v:  ('power',    'uint16',   lambda x: x)     if v < 6    else None,
+    lambda v:  ('run_cost', 'uint16',   lambda x: x/100) if v > 0    else None,
+    lambda v:  ('fix_cost', 'uint32',   lambda x: x/100) if v > 10   else None,
+    lambda v:  ('fix_cost', 'uint16',   lambda x: x/100) if 11> v >8 else None,
+    lambda v:  ('intro',    'uint16',   lambda x: x)     if v > 0    else None,
+    lambda v:  ('retire',   'uint16',   lambda x: x)     if v > 2    else None,
+    lambda v:  ('gear',     'uint16',   lambda x: x)     if v > 5    else None,
+    lambda v:  ('gear',     'uint8',    lambda x: x)     if v < 6    else None,
+    lambda v:  ('waytype',  'uint8',    lambda x: x)     if v > 0    else None,
+    lambda v:  ('sound',    'sint8',    lambda x: x)     if v > 0    else None,
+    lambda v:  ('engine',   'uint8',    lambda x: x)     if v > 0    else None,
+    lambda v:  ('length',   'uint8',    lambda x: x)     if v > 6    else None,
+    lambda v:  ('const_pr', 'uint8',    lambda x: x)     if v > 0    else None,
+    lambda v:  ('const_nx', 'uint8',    lambda x: x)     if v > 0    else None,
+    lambda v:  ('frei_imag','uint8',    lambda x: x)     if v > 7    else None,
+)
