@@ -1,0 +1,154 @@
+"BRIDGE(BRDG)",,,
+,,,
+"top_speed","topspeed","uint16",
+"cost","cost","uint32",
+"maintenance","maintenance","uint32","from v2"
+"waytype","wt","uint8","positioned top on v1"
+"pillars_every","pillars_every","uint8","from v3"
+"max_length","max_length","uint8","from v4"
+"intro","intro_date","uint16","from v5"
+"retire","obsolete_date","uint16","from v5"
+"pillars_asymmetric","pillars_asymmetric","uint8","from v7"
+"axle_load","axle_load","uint16","from v9"
+"max_height","max_height","uint8","from v7"
+"number_seasons","number_seasons","uint8","from v6"
+,,,
+"BUILDING(BUIL)",,,
+,,,
+"gtyp","gtyp","uint8",
+"utype","utype","uint8",
+"level","level","uint16",
+"extra_data","extra_data","uint32",
+"size.x","size.x","uint16",
+"size.y","size.y","uint16",
+"layouts","layouts","uint8",
+"allowed_climates","allowed_climates","uint16","from v4"
+"enables","enables","uint8","from v3"
+"flags","flags","uint8",
+"chance","chance","uint8",
+"intro","intro_date","uint16","from v2"
+"retire","obsolete_date","uint16","from v2"
+"animation_time","animation_time","uint16","from v5"
+"capacity","capacity","uint16","from v8"
+"maintenance","maintenance","sint32","from v8"
+"price","price","sint32","from v8"
+"allow_underground","allow_underground","uint8","from v7"
+,,,
+"CITYCAR(CCAR)",,,
+,,,
+"weight","gewichtung","uint16",
+"max_speed","geschw","uint16",
+"intro","intro_date","uint16",
+"retire","obsolete_date","uint16",
+,,,
+"CROSSING(CRSS)",,,
+,,,
+"waytype0","wegtyp1",,
+"waytype1","wegtyp2",,
+"top_speed0","topspeed1",,
+"top_speed1","topspeed2",,
+"open_animation_time","open_animation_time",,
+"closed_animation_time","closed_animation_time",,
+"sound","sound",,
+"intro_date","intro_date",,
+"obsolete_date","obsolete_date",,
+,,,
+"CURSOR(CURS)",,,
+,,,
+"FACTORY(FACT)",,,
+,,,
+,"platzierung","uint16",
+,"produktivitaet","uint16",
+,"bereich","uint16",
+,"gewichtung","uint16",
+,"kannfarbe","uint8",
+,"fields","uint8",
+,"lieferanten","uint16",
+,"produkte","uint16",
+,"pax_level","uint16",
+,"expand_probability","uint16","from v3 (111.0)"
+,"expand_minimum","uint16","from v3 (111.0)"
+,"expand_range","uint16","from v3 (111.0)"
+,"expand_times","uint16","from v3 (111.0)"
+,"electric_boost","uint16","from v3 (111.0)"
+,"pax_boost","uint16","from v3 (111.0)"
+,"mail_boost","uint16","from v3 (111.0)"
+,"electric_amount","uint16","from v3 (111.0)"
+,"pax_demand","uint16","from v3 (111.0)"
+,"mail_demand","uint16","from v3 (111.0)"
+,,,
+"FFIELD(FFIE)",,,
+,,,
+"FFLDCLASS(FFCL)",,,
+,,,
+"FIELD(FIEL)",,,
+,,,
+"FPRODUCT(FPRO)",,,
+,,,
+"FSMOKE(FSMO)",,,
+,,,
+"FSUPPLIER(FSUP)",,,
+,,,
+"GOOD(GOOD)",,,
+,,,
+"GROUND(GRND)",,,
+,,,
+"GROUNDOBJ(GOBJ)",,,
+,,,
+"IMAGE(IMG0)",,,
+,,,
+"IMAGELIST1(IMG1)",,,
+,,,
+"IMAGELIST2(IMG2)",,,
+,,,
+"MENU(MENU)",,,
+,,,
+"MISCIMAGES(MISC)",,,
+,,,
+"PEDESTRIAN(PASS)",,,
+,,,
+"ROAD_SIGN(SIGN)",,,
+,,,
+"ROOT(ROOT)",,,
+,,,
+"SMOKE(SMOK)",,,
+,,,
+"SOUND(SOUN)",,,
+,,,
+"SYMBOL(SYMB)",,,
+,,,
+"TEXT(TEXT)",,,
+,,,
+"TILE(TILE)",,,
+,,,
+"TREE(TREE)",,,
+,,,
+"TUNNEL(TUNL)",,,
+,,,
+"VEHICLE(VHCL)",,,
+,,,
+"cost","cost","uint32",
+"payload","zuladung","uint16",
+"loading_time","loading_time","uint16","from v9"
+"top_speed","topspeed","uint16",
+"weight","gewicht","uint32","until v10 uint16 and unit is ton"
+"axle_load","axle_load","uint16","from v9"
+"power","leistung","uint32","uint16 until v5"
+"runningcost","running_cost","uint16",
+"fixcost","fixed_cost","uint32","from v9 and uint16 until v10"
+"intro","intro_date","uint16",
+"retire","obsolete_date","uint16","from v3"
+"gear","gear","uint16","uint8 until v5"
+"waytype","wt","uint8",
+"sound","sound","sint8",
+"engine_type","engine_type","uint8",
+"len","len","uint8","from v7"
+"constraint[pr]","vorgaenger","uint8",
+"constraint[nx]","nachfolger","uint8",
+"FreightImage","freight_image_type","uint8","from v8"
+,,,
+"WAY(WAY0)",,,
+,,,
+"WAYOBJECT(WYOB)",,,
+,,,
+"XREF(XREF)",,,
