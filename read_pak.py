@@ -11,7 +11,12 @@ class PakFile(): #read .pak and extract into PakNode instance
         self._f = open(path, 'rb')
         self._path = path
         self._bin = self._f.read()
-        self.root = PakNode(self._bin[61:])
+
+        i = 0
+        while self._bin[i : i+4] != b'ROOT':
+            i += 1
+
+        self.root = ROOTNode(self._bin[i:])
 
     def __repr__ (self):
         return "<Simutrans Pak File '{}'>".format(self._path)
@@ -41,8 +46,25 @@ class PakNode():
 
         self.read_data()
 
+        if self.type in lib.named_obj:
+            for i,c in enumerate(self.child):
+                if type(c) == CURSNode:
+                    self.name   = self.child[i].child[0].data_bin[:-1].decode()
+                    self.author = self.child[i].child[1].data_bin[:-1].decode()
+                    break
+            else:
+                self.name   = self.child[0].data_bin[:-1].decode()
+                self.author = self.child[1].data_bin[:-1].decode()
+
+        elif self.type == 'FACT':
+            self.name   = self.child[0].name
+            self.author = self.child[0].author
+
     def __repr__(self):
-        return "<Simutrans {} Node>".format(self.type)
+        if self.type in lib.named_obj:
+            return "<Simutrans {0}: {1}>".format(self.type, self.name)
+        else:
+            return "<Simutrans {} Node>".format(self.type)
 
     def read_LE(self, binary, fmt):
         if fmt == 'uint8':
@@ -56,6 +78,9 @@ class PakNode():
             packlen = 2
         elif fmt == 'uint32':
             packfmt = '<I'
+            packlen = 4
+        elif fmt == 'sint32':
+            packfmt = '<i'
             packlen = 4
         else:
             raise
@@ -78,117 +103,184 @@ class PakNode():
             child_bin,
         ]
 
-    def read_data(self):
-        pass
+    def set_intro(self, v_th):
+        if self.version > v_th:
+            self.intro_year  = int(self.intro / 12)
+            self.intro_month = int(self.intro % 12) + 1
+        else:
+            self.intro_year  = int(self.intro / 16)
+            self.intro_year  = int(self.intro % 16) + 1
 
-class BRDGNode(PakNode):
-    pass
+    def set_retire(self, v_th):
+        if self.version > v_th:
+            self.retire_year  = int(self.retire / 12)
+            self.retire_month = int(self.retire % 12) + 1
+        else:
+            self.retire_year  = int(self.retire / 16)
+            self.retire_year  = int(self.retire % 16) + 1
 
-class BUILNode(PakNode):
-    pass
-
-class CCARNode(PakNode):
-    pass
-
-class CRSSNode(PakNode):
-    pass
-
-class CURSNode(PakNode):
-    pass
-
-class FACTNode(PakNode):
-    pass
-
-class FFIENode(PakNode):
-    pass
-
-class FFCLNode(PakNode):
-    pass
-
-class FIELNode(PakNode):
-    pass
-
-class FPRONode(PakNode):
-    pass
-
-class FSMONode(PakNode):
-    pass
-
-class FSUPNode(PakNode):
-    pass
-
-class GOODNode(PakNode):
-    pass
-
-class GRNDNode(PakNode):
-    pass
-
-class GOBJNode(PakNode):
-    pass
-
-class IMGNode(PakNode):
-    pass
-
-class IMG1Node(PakNode):
-    pass
-
-class IMG2Node(PakNode):
-    pass
-
-class MENUNode(PakNode):
-    pass
-
-class MISCNode(PakNode):
-    pass
-
-class PASSNode(PakNode):
-    pass
-
-class SIGNNode(PakNode):
-    pass
-
-class ROOTNode(PakNode):
-    pass
-
-class SMOKNode(PakNode):
-    pass
-
-class SOUNNode(PakNode):
-    pass
-
-class SYMBNode(PakNode):
-    pass
-
-class TEXTNode(PakNode):
-    pass
-
-class TILENode(PakNode):
-    pass
-
-class TREENode(PakNode):
-    pass
-
-class TUNLNode(PakNode):
-    pass
-
-class VHCLNode(PakNode):
     def read_data(self):
         [dump, next_bin] = self.read_LE(self.data_bin, 'uint16')
-        self.version = dump & 0x700F if dump & 0x8000 else 0
-        for c in lib.VHCLparam:
+        self.version = dump & 0x7FFF if dump & 0x8000 else 0
+        if self.version == 0:
+            raise
+        for c in getattr(lib, self.type + 'param'):
             param = c(self.version)
             if param != None:
                 [val, next_bin] = self.read_LE(next_bin, param[1])
-                setattr(self, param[0], val)
+                setattr(self, param[0], param[2](val))
+
+class BRDGNode(PakNode):
+    def read_data(self):
+        super().read_data()
+
+        if self.version > 4:
+            self.set_intro(4)
+            self.set_retire(4)
+
+class BUILNode(PakNode):
+    def read_data(self):
+        super().read_data()
+
+        if self.version > 1:
+            self.set_intro(1)
+            self.set_retire(1)
+
+class CCARNode(PakNode):
+    def read_data(self):
+        super().read_data()
+
+        if self.version > 1:
+            self.set_intro(1)
+            self.set_retire(1)
+
+class CRSSNode(PakNode):
+    def read_data(self):
+        pass
+
+class CURSNode(PakNode):
+    def read_data(self):
+        pass
+
+class FACTNode(PakNode):
+    def read_data(self):
+        pass
+
+class FFIENode(PakNode):
+    def read_data(self):
+        pass
+
+class FFCLNode(PakNode):
+    def read_data(self):
+        pass
+
+class FIELNode(PakNode):
+    def read_data(self):
+        pass
+
+class FPRONode(PakNode):
+    def read_data(self):
+        pass
+
+class FSMONode(PakNode):
+    def read_data(self):
+        pass
+
+class FSUPNode(PakNode):
+    def read_data(self):
+        pass
+
+class GOODNode(PakNode):
+    def read_data(self):
+        pass
+
+class GRNDNode(PakNode):
+    def read_data(self):
+        pass
+
+class GOBJNode(PakNode):
+    def read_data(self):
+        pass
+
+class IMGNode(PakNode):
+    def read_data(self):
+        pass
+
+class IMG1Node(PakNode):
+    def read_data(self):
+        pass
+
+class IMG2Node(PakNode):
+    def read_data(self):
+        pass
+
+class MENUNode(PakNode):
+    def read_data(self):
+        pass
+
+class MISCNode(PakNode):
+    def read_data(self):
+        pass
+
+class PASSNode(PakNode):
+    def read_data(self):
+        pass
+
+class SIGNNode(PakNode):
+    def read_data(self):
+        pass
+
+class ROOTNode(PakNode):
+    def read_data(self):
+        pass
+
+class SMOKNode(PakNode):
+    def read_data(self):
+        pass
+
+class SOUNNode(PakNode):
+    def read_data(self):
+        pass
+
+class SYMBNode(PakNode):
+    def read_data(self):
+        pass
+
+class TEXTNode(PakNode):
+    def read_data(self):
+        pass
+
+class TILENode(PakNode):
+    def read_data(self):
+        pass
+
+class TREENode(PakNode):
+    def read_data(self):
+        pass
+
+class TUNLNode(PakNode):
+    def read_data(self):
+        pass
+
+class VHCLNode(PakNode):
+    def read_data(self):
+        super().read_data()
+
+        self.set_intro(4)
+        if self.version > 2:
+            self.set_retire(4)
 
 class WAYNode(PakNode):
-    pass
+    def read_data(self):
+        pass
 
 class WYOBNode(PakNode):
-    pass
+    def read_data(self):
+        pass
 
 class XREFNode(PakNode):
-    pass
+    def read_data(self):
+        pass
 
 def main(path):
     pak = PakFile(path)
