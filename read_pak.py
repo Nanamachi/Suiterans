@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 import sys
 import struct
 from PIL import Image
@@ -49,19 +49,22 @@ class PakNode():
         if self.type in lib.named_obj:
             for i,c in enumerate(self.child):
                 if type(c) == CURSNode:
-                    self.name   = self.child[i].child[0]._data_bin[:-1].decode()
-                    self.author = self.child[i].child[1]._data_bin[:-1].decode()
+                    _name_node   = self.child[i].child[0]
+                    _author_node = self.child[i].child[1]
                     break
             else:
-                self.name   = self.child[0]._data_bin[:-1].decode()
-                self.author = self.child[1]._data_bin[:-1].decode()
+                _name_node   = self.child[0]
+                _author_node = self.child[1]
+
+            self.name = _name_node._data_bin[:-1].decode('utf-8', errors = 'ignore')
+            self.author = _author_node._data_bin[:-1].decode('utf-8', errors = 'ignore')
 
         elif self.type == 'FACT':
             self.name   = self.child[0].name
             self.author = self.child[0].author
 
     def __repr__(self):
-        if self.type in lib.named_obj:
+        if (self.type in lib.named_obj) or self.type == 'FACT':
             return "<Simutrans {0}: {1}>".format(self.type, self.name)
         else:
             return "<Simutrans {} Node>".format(self.type)
