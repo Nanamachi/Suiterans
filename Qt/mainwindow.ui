@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>638</width>
+    <height>380</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <item>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="2" column="2">
+       <widget class="QGraphicsView" name="imgview"/>
+      </item>
+      <item row="0" column="1" colspan="2">
+       <widget class="QTableView" name="paklist"/>
+      </item>
+      <item row="2" column="1">
+       <widget class="QTableView" name="pakinfo"/>
+      </item>
+      <item row="0" column="0" rowspan="4">
+       <widget class="QListView" name="folderlist"/>
+      </item>
+      <item row="3" column="1" colspan="2">
+       <widget class="QPushButton" name="pushButton">
+        <property name="text">
+         <string>Push ME!</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>638</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuSuiterans_v1_0_0">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionAdd_Simutrans_pak_folder"/>
+    <addaction name="actionOpen_pak_files"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <addaction name="menuSuiterans_v1_0_0"/>
+  </widget>
+  <action name="actionOpen_pak_files">
+   <property name="text">
+    <string>Open .pak files</string>
+   </property>
+  </action>
+  <action name="actionAdd_Simutrans_pak_folder">
+   <property name="text">
+    <string>Add Simutrans .pak folder</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>
