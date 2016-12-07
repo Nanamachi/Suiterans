@@ -27,34 +27,34 @@ class PakNode():
             self.type,
             self.child_count,
             self.data_len,
-            self.data_bin,
-            self.next_bin,
+            self._data_bin,
+            self._next_bin,
         ] \
         = self.read_header(binary)
 
         self.child = []
         for i in range(self.child_count):
-            child_type = self.next_bin[0:4].decode()
+            child_type = self._next_bin[0:4].decode()
             if child_type[3] == '\0':
                 child_type = child_type[0:3]
 
             child_class = globals()[child_type + 'Node']
 
-            self.child.append(child_class(self.next_bin))
-            self.next_bin = self.child[i].next_bin
-            del self.child[i].next_bin #to reduce memory
+            self.child.append(child_class(self._next_bin))
+            self._next_bin = self.child[i]._next_bin
+            del self.child[i]._next_bin #to reduce memory
 
         self.read_data()
 
         if self.type in lib.named_obj:
             for i,c in enumerate(self.child):
                 if type(c) == CURSNode:
-                    self.name   = self.child[i].child[0].data_bin[:-1].decode()
-                    self.author = self.child[i].child[1].data_bin[:-1].decode()
+                    self.name   = self.child[i].child[0]._data_bin[:-1].decode()
+                    self.author = self.child[i].child[1]._data_bin[:-1].decode()
                     break
             else:
-                self.name   = self.child[0].data_bin[:-1].decode()
-                self.author = self.child[1].data_bin[:-1].decode()
+                self.name   = self.child[0]._data_bin[:-1].decode()
+                self.author = self.child[1]._data_bin[:-1].decode()
 
         elif self.type == 'FACT':
             self.name   = self.child[0].name
@@ -120,7 +120,7 @@ class PakNode():
             self.retire_year  = int(self.retire % 16) + 1
 
     def read_data(self):
-        [dump, next_bin] = self.read_LE(self.data_bin, 'uint16')
+        [dump, next_bin] = self.read_LE(self._data_bin, 'uint16')
         self.version = dump & 0x7FFF if dump & 0x8000 else 0
         if self.version == 0:
             raise
