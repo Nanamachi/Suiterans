@@ -2,6 +2,9 @@
 import sys
 import struct
 from PIL import Image
+import PyQt5.QtCore as QC
+import PyQt5.QtGui as QG
+import PyQt5.QtWidgets as QW
 
 import lib
 
@@ -38,7 +41,6 @@ class PakNode():
             _fp,
         ] \
         = self.read_header(fp)
-        print(self.type, self.data_len)
 
         self.read_data(fp)
 
@@ -65,8 +67,9 @@ class PakNode():
                 _author_node = self.child[1]
 
             self.name = _name_node.text
-            self.author = _author_node.text
-            if (type(_author_node) == XREFNode) or self.author == '' :
+            if (type(_author_node) == TEXTNode):
+                self.author = _author_node.text
+            if not getattr(self, 'author', ''):
                 self.author = '__UnDefined__'
 
         elif self.type == 'FACT':
@@ -90,6 +93,9 @@ class PakNode():
             packlen = 1
         elif fmt == 'uint16':
             packfmt = '<H'
+            packlen = 2
+        elif fmt == 'sint16':
+            packfmt = '<h'
             packlen = 2
         elif fmt == 'uint32':
             packfmt = '<I'
@@ -148,7 +154,19 @@ class PakNode():
             param = c(self.version)
             if param != None:
                 [val, self.data_len] = self.read_LE(fp, param[1], self.data_len)
+                if  (param[0] == 'sound')\
+                    and (val == -2)\
+                    and (self.type == 'CRSS'):
+                    [sfile_len, self.data_len] \
+                        = self.read_LE(fp, 'sint8', self.data_len)
+                    self.wav = fp.read(sfile_len).decode()
+                    self.data_len -= sfile_len
                 setattr(self, param[0], param[2](val))
+        if self.type == 'VHCL' and getattr(self, 'sound', None) == -2:
+            [sfile_len, self.data_len] \
+                = self.read_LE(fp, 'sint8', self.data_len)
+            self.wav = fp.read(sfile_len)
+            self.data_len -= sfile_len
 
         if self.data_len != 0:
             print(self.type, self.data_len)
@@ -160,7 +178,7 @@ class BRDGNode(PakNode):
     def read_data(self, fp):
         super().read_data(fp)
 
-        if self.version > 4:
+        if hasattr(self, 'intro'):
             self.set_intro(4)
             self.set_retire(4)
 
@@ -168,7 +186,7 @@ class BUILNode(PakNode):
     def read_data(self, fp):
         super().read_data(fp)
 
-        if self.version > 1:
+        if hasattr(self, 'intro'):
             self.set_intro(1)
             self.set_retire(1)
 
@@ -176,57 +194,53 @@ class CCARNode(PakNode):
     def read_data(self, fp):
         super().read_data(fp)
 
-        if self.version > 1:
+        if hasattr(self, 'intro'):
             self.set_intro(1)
             self.set_retire(1)
 
 class CRSSNode(PakNode):
     def read_data(self, fp):
-        pass
+        super().read_data(fp)
+
+        if hasattr(self, 'intro'):
+            self.set_intro(1)
+            self.set_retire(1)
 
 class CURSNode(PakNode):
     def read_data(self, fp):
         pass
 
 class FACTNode(PakNode):
-    def read_data(self, fp):
-        pass
+    pass
 
 class FFIENode(PakNode):
-    def read_data(self, fp):
-        pass
+    pass
 
 class FFCLNode(PakNode):
-    def read_data(self, fp):
-        pass
+    pass
 
 class FIELNode(PakNode):
     def read_data(self, fp):
         pass
 
 class FPRONode(PakNode):
-    def read_data(self, fp):
-        pass
+    pass
 
 class FSMONode(PakNode):
-    def read_data(self, fp):
-        pass
+    pass
 
 class FSUPNode(PakNode):
-    def read_data(self, fp):
-        pass
+    pass
 
 class GOODNode(PakNode):
-    def read_data(self, fp):
-        pass
+    pass
 
 class GRNDNode(PakNode):
     def read_data(self, fp):
         pass
 
 class GOBJNode(PakNode):
-    def read_data(self, fp):
-        pass
+    pass
 
 class IMGNode(PakNode):
     def read_data(self, fp):
@@ -249,12 +263,14 @@ class MISCNode(PakNode):
         pass
 
 class PASSNode(PakNode):
-    def read_data(self, fp):
-        pass
+    pass
 
 class SIGNNode(PakNode):
     def read_data(self, fp):
-        pass
+        super().read_data(fp)
+
+        self.set_intro(2)
+        self.set_retire(2)
 
 class ROOTNode(PakNode):
     def read_data(self, fp):
@@ -277,36 +293,44 @@ class TEXTNode(PakNode):
         self.text = fp.read(self.data_len).decode('sjis', errors = 'ignore')
 
 class TILENode(PakNode):
-    def read_data(self, fp):
-        pass
+    pass
 
 class TREENode(PakNode):
-    def read_data(self, fp):
-        pass
+    pass
 
 class TUNLNode(PakNode):
     def read_data(self, fp):
-        pass
+        super().read_data(fp)
+
+        self.set_intro(0)
+        self.set_retire(0)
 
 class VHCLNode(PakNode):
     def read_data(self, fp):
         super().read_data(fp)
 
-        self.set_intro(4)
-        if self.version > 2:
+        if hasattr(self, 'intro'):
+            self.set_intro(4)
+        if hasattr(self, 'retire'):
             self.set_retire(4)
 
 class WAYNode(PakNode):
     def read_data(self, fp):
-        pass
+        super().read_data(fp)
+
+        self.set_intro(1)
+        self.set_retire(1)
 
 class WYOBNode(PakNode):
     def read_data(self, fp):
-        pass
+        super().read_data(fp)
+
+        self.set_intro(0)
+        self.set_retire(0)
 
 class XREFNode(PakNode):
     def read_data(self, fp):
-        pass
+        self.xref = fp.read(self.data_len).decode('sjis', errors = 'ignore')
 
 def main(path):
     pak = PakFile(path)

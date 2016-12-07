@@ -18,10 +18,8 @@ class PakSuite():
         = _op.join(self.path_root, 'addons', self.pakset_name)
         self.pak = []
         for fname in glob.glob(self.path_main + '\\*.pak'):
-            print(fname)
             self.pak.append(read_pak.PakFile(fname))
         for fname in glob.glob(self.path_addon + '\\*.pak'):
-            print(fname)
             self.pak.append(read_pak.PakFile(fname))
 
     def __repr__(self):

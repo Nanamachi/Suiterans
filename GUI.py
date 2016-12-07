@@ -15,7 +15,13 @@ def call_main():
 
     ui.actionExit.triggered.connect(app.quit)
 
-    model = QC.QStringListModel(main.read_paksuites())
+    model = QG.QStandardItemModel(0,1)
+    paksuite = main.read_paksuites()
+    Qtps = []
+    for ps in paksuite:
+        Qtps.append(QG.QStandardItem(ps.pakset_name))
+        Qtps[-1].data = ps
+        model.appendRow(Qtps[-1])
     ui.folderlist.setModel(model)
 
     window.show()
