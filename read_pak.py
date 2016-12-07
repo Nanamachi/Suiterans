@@ -1,6 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
 import sys
 import struct
+import os
 from PIL import Image
 import PyQt5.QtCore as QC
 import PyQt5.QtGui as QG
@@ -13,6 +14,7 @@ class PakFile(): #read .pak and extract into PakNode instance
     # http://www.ajisaba.net/python/binary.html
         _fp = open(path, 'rb')
         self.path = path
+        self.name = os.path.basename(path)
         while True:
             if _fp.read(1) != b'R':
                 continue
@@ -38,7 +40,6 @@ class PakNode():
             self.type,
             self.child_count,
             self.data_len,
-            _fp,
         ] \
         = self.read_header(fp)
 
@@ -46,12 +47,12 @@ class PakNode():
 
         self.child = []
         for i in range(self.child_count):
-            child_type = _fp.read(4).decode()
+            child_type = fp.read(4).decode()
             if child_type[3] == '\0':
                 child_type = child_type[0:3]
 
             child_class = globals()[child_type + 'Node']
-            _fp.seek(-4, 1) #back 4chars from here
+            fp.seek(-4, 1) #back 4chars from here
 
             self.child.append(child_class(fp))
 
@@ -121,7 +122,6 @@ class PakNode():
             typ,
             child_count,
             data_len,
-            fp,
         ]
 
     def set_intro(self, v_th):

@@ -4,9 +4,7 @@ import os
 import glob
 import codecs
 import json
-import pdb
 
-import GUI
 import read_pak
 
 class PakSuite():
@@ -30,8 +28,7 @@ def read_paksuites():
     configfs = glob.glob('conf/*.conf')
     for configfn in configfs:
         configf = codecs.open(configfn, 'r', 'utf-8')
-        confs = json.load(configf, encoding = 'utf-8')
-        paksuites.append(PakSuite(confs['dir']))
+        paksuites.append(json.load(configf, encoding = 'utf-8'))
         configf.close()
 
     return paksuites
