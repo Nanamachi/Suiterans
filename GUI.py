@@ -1,13 +1,18 @@
 # -*- coding: utf-8 -*-
-
 import sys
 import Qt.window as wi
 from PyQt5.QtWidgets import QApplication, QMainWindow
 
-app = QApplication(sys.argv)
-window = QMainWindow()
-ui = wi.Ui_MainWindow()
-ui.setupUi(window)
+def call_main():
+    app = QApplication(sys.argv)
+    window = QMainWindow()
+    ui = wi.Ui_MainWindow()
+    ui.setupUi(window)
 
-window.show()
-sys.exit(app.exec_())
+    ui.actionExit.triggered.connect(app.quit)
+
+    window.show()
+    sys.exit(app.exec_())
+
+if __name__ == '__main__':
+    call_main()
