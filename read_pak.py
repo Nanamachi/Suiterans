@@ -8,41 +8,48 @@ import lib
 class PakFile(): #read .pak and extract into PakNode instance
     def __init__(self, path):
     # http://www.ajisaba.net/python/binary.html
-        self._f = open(path, 'rb')
-        self._path = path
-        self._bin = self._f.read()
+        _fp = open(path, 'rb')
+        self.path = path
+        while True:
+            if _fp.read(1) != b'R':
+                continue
+            elif _fp.read(1) != b'O':
+                _fp.seek(-1,1)
+                continue
+            elif _fp.read(1) != b'O':
+                _fp.seek(-1,1)
+                continue
+            elif _fp.read(1) == b'T':
+                break
 
-        i = 0
-        while self._bin[i : i+4] != b'ROOT':
-            i += 1
-
-        self.root = ROOTNode(self._bin[i:])
+        _fp.seek(-4, 1) #back 4chars from here
+        self.root = ROOTNode(_fp)
+        _fp.close()
 
     def __repr__ (self):
-        return "<Simutrans Pak File '{}'>".format(self._path)
+        return "<Simutrans Pak File '{}'>".format(self.path)
 
 class PakNode():
-    def __init__(self, binary): #read data from binary and generate child Nodes
+    def __init__(self, fp): #read data from binary and generate child Nodes
         [
             self.type,
             self.child_count,
             self.data_len,
             self._data_bin,
-            self._next_bin,
+            _fp,
         ] \
-        = self.read_header(binary)
+        = self.read_header(fp)
 
         self.child = []
         for i in range(self.child_count):
-            child_type = self._next_bin[0:4].decode()
+            child_type = _fp.read(4).decode()
             if child_type[3] == '\0':
                 child_type = child_type[0:3]
 
             child_class = globals()[child_type + 'Node']
+            _fp.seek(-4, 1) #back 4chars from here
 
-            self.child.append(child_class(self._next_bin))
-            self._next_bin = self.child[i]._next_bin
-            del self.child[i]._next_bin #to reduce memory
+            self.child.append(child_class(fp))
 
         self.read_data()
 
@@ -56,8 +63,10 @@ class PakNode():
                 _name_node   = self.child[0]
                 _author_node = self.child[1]
 
-            self.name = _name_node._data_bin[:-1].decode('utf-8', errors = 'ignore')
-            self.author = _author_node._data_bin[:-1].decode('utf-8', errors = 'ignore')
+            self.name = _name_node._data_bin[:-1].decode('sjis', errors = 'ignore')
+            self.author = _author_node._data_bin[:-1].decode('sjis', errors = 'ignore')
+            if (type(_author_node) == XREFNode) or self.author == '' :
+                self.author = '__UnDefined__'
 
         elif self.type == 'FACT':
             self.name   = self.child[0].name
@@ -90,20 +99,19 @@ class PakNode():
 
         return [struct.unpack(packfmt, binary[0:packlen])[0], binary[packlen:]]
 
-    def read_header(self, binary): #read binary and return headerdata
-        typ = binary[0:4].decode()
+    def read_header(self, fp): #read binary and return headerdata
+        typ = fp.read(4).decode()
         if typ[3] == '\0' : #if last char is null (occur in IMG and WAY)
             typ = typ[:3]
-        [child_count, _] = self.read_LE(binary[4:6], 'uint16')
-        [data_len, _] = self.read_LE(binary[6:8], 'uint16')
-        data_bin = binary[8:8 + data_len]
-        child_bin = binary[8 + data_len:]
+        [child_count, _] = self.read_LE(fp.read(2), 'uint16')
+        [data_len, _] = self.read_LE(fp.read(2), 'uint16')
+        data_bin = fp.read(data_len)
         return [
             typ,
             child_count,
             data_len,
             data_bin,
-            child_bin,
+            fp,
         ]
 
     def set_intro(self, v_th):
