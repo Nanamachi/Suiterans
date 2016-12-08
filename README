@@ -1,5 +1,21 @@
+--------!注意!--------
+各アドオンの著作権はそれぞれの作者に帰属します。
+アドオンの利用条件をよく確認し、それに反しない範囲において利用してください。
+なお、このプログラムを用いたことにより起きた故障・トラブルについて、
+開発者は一切の責任を負わないこととします。
+以上をご理解の上ご利用ください。
+
+--------!CAUTION!--------
+The copyright of each add-ons belongs to each author.
+Please carefully check the usage conditions of add-ons and use this program
+within ranges that do not contradict it.
+The developer shall not bear any responsibility for failure or trouble
+caused by using this program.
+You may use this program on your understanding above.
+
 --------ja_JP--------
-Suiterans (a.k.a. SimutranSuite)は、フリーの交通シミュレーションゲーム「Simutrans」のアドオン(.pak)ファイルを閲覧・管理可能にするソフトウェアです。
+Suiteransは、フリーの交通シミュレーションゲーム「Simutrans」の
+アドオン(.pak)ファイルを閲覧・管理可能にするソフトウェアです。
 
 実装予定機能:
 ・pakファイルの閲覧
@@ -15,9 +31,12 @@ Suiterans (a.k.a. SimutranSuite)は、フリーの交通シミュレーション
 ・プラグイン拡張性
 
 連絡などはTwitter( @town7_haruki )にお願いします。
+また、このプログラムのすべての著作権は ななまち を筆頭とする開発メンバーに帰属し、
+その利用にあたってはGPLv3に従うものとします。
 
 --------en_US--------
-Suiterans (a.k.a. SimutranSuite) is the software which can view and manage ".pak" addon file of Simutrans, the free transport simulation game.
+Suiterans is the software which can view and manage
+".pak" add-on files of Simutrans, the free transport simulation game.
 
 expecting features:
 -view .pak files
@@ -31,3 +50,6 @@ expecting features:
 -show version of makeobj which compiled pak file
 -check capablity for single-slope
 -plug-in extendable
+
+All copyrights of this program belong to the development member
+with Nanamachi ( @town7_haruki ) as the principal and shall be subject to GPLv3 in its use.
