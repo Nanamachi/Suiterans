@@ -16,6 +16,109 @@ named_obj = (
     'WYOB',
 )
 
+displayable_node = (
+    'name',
+    'type',
+    'author',
+    'cost',
+    'intro_year',
+    'intro_month',
+    'retire_year',
+    'retire_month',
+    'anim_time',
+    'axle_load',
+    'brd_ptls',
+    'capacity',
+    'category',
+    'chance',
+    'climate',
+    'climates',
+    'color',
+    'const_nx',
+    'const_pr',
+    'consume',
+    'cost_rmv',
+    'dist_wt',
+    'draw_a_ob',
+    'elec_amt',
+    'elec_bst',
+    'enables',
+    'engine',
+    'ex_data',
+    'exp_min',
+    'exp_prob',
+    'exp_range',
+    'exp_time',
+    'factor',
+    'fields',
+    'fix_cost',
+    'flags',
+    'flc_cls',
+    'frei_imag',
+    'g_type',
+    'gear',
+    'has_way',
+    'index',
+    'layouts',
+    'length',
+    'level',
+    'load_time',
+    'location',
+    'mail_bst',
+    'mail_dmd',
+    'maintain',
+    'max_fld',
+    'max_hei',
+    'max_len',
+    'max_wt',
+    'min_fld',
+    'min_speed',
+    'off_left',
+    'off_x',
+    'off_y',
+    'op_anm_t',
+    'own_wtyp',
+    'pax_bst',
+    'pax_dmd',
+    'pax_lvl',
+    'payload',
+    'pdctivity',
+    'phasen',
+    'pillar_a',
+    'pillar_e',
+    'pos_x',
+    'pos_y',
+    'power',
+    'price',
+    'probablty',
+    'prod_p_f',
+    'product',
+    'range',
+    'run_cost',
+    'season',
+    'size_x',
+    'size_y',
+    'snow_img',
+    'sound',
+    'spawn_wt',
+    'spd_bonus',
+    'speed',
+    'start_fld',
+    'styp',
+    'sup_cnt',
+    'supply',
+    'top_speed',
+    'tree_on',
+    'u_type',
+    'undergnd',
+    'value',
+    'waytype',
+    'weight',
+    'wt_p_unit',
+    'xz_anm_t',
+    'version',
+)
+
 BRDGparam = (
 #               attrname,   type,       hook,            version,    None
     lambda v:  ('waytype',  'uint16',   lambda x: x)     if v < 2    else None,
@@ -175,16 +278,45 @@ GOODparam = (
     lambda v:  ('color',    'uint8',    lambda x: x)     if v > 2    else None,
 )
 
+IMGparam = (
+#               attrname,   type,       hook,            version,    None
+    lambda v:  ('x',        'uint8',    lambda x: x)     if v== 0    else None,
+    lambda v:  ('x',        'sint16',   lambda x: x)     if v > 0    else None,
+    lambda v:  ('y',        'sint16',   lambda x: x)     if v > 0    else None,
+    lambda v:  ('width',    'uint8',    lambda x: x)     if v < 3    else None,
+    lambda v:  ('width',    'sint16',   lambda x: x)     if v > 2    else None,
+    lambda v:  ('y',        'uint8',    lambda x: x)     if v== 0    else None,
+    lambda v:  ('height',   'uint8',    lambda x: x)     if v < 3    else None,
+    lambda v:  ('height',   'sint16',   lambda x: x)     if v > 2    else None,
+    lambda v:  ('_dummy',   'uint8',    lambda x: x)     if v >0     else None,
+    lambda v:  ('length',   'uint32',   lambda x: x)     if v== 0    else None,
+    lambda v:  ('length',   'uint16',   lambda x: x)     if 3> v >0  else None,
+    lambda v:  ('_dummy',   'uint16',   lambda x: x)     if v== 0    else None,
+    lambda v:  ('zoomable', 'uint8',    lambda x: x)     if v > -1   else None,
+)
+
+IMG1param = (
+#               attrname,   type,       hook,            version,    None
+    lambda v:  ('count',    'uint16',   lambda x: x)     if v > -1   else None,
+    lambda v:  ('_dummy',   'uint16',   lambda x: x)     if v > -1   else None,
+)
+
+IMG2param = (
+#               attrname,   type,       hook,            version,    None
+    lambda v:  ('count',    'uint16',   lambda x: x)     if v > -1   else None,
+    lambda v:  ('_dummy',   'uint16',   lambda x: x)     if v > -1   else None,
+)
+
 PASSparam = (
 #               attrname,   type,       hook,            version,    None
-    lambda v:  ('weight',   'uint16',   lambda x: x)     if v== 0    else None,
-    lambda v:  ('_dummy',   'uint16',   lambda x: x)     if v== 0    else None,
+    lambda v:  ('weight',   'uint16',   lambda x: x)     if v > -1   else None,
+    lambda v:  ('_dummy',   'uint16',   lambda x: x)     if v > -1   else None,
 )
 
 SIGNparam = (
 #               attrname,   type,       hook,            version,    None
     lambda v:  ('min_speed','uint16',   lambda x: x)     if v > 0    else None,
-    lambda v:  ('cost',     'uint32',   lambda x: x)     if v > 1    else None,
+    lambda v:  ('cost',     'uint32',   lambda x: x/100) if v > 1    else None,
     lambda v:  ('flags',    'uint8',    lambda x: x)     if v > 0    else None,
     lambda v:  ('off_left', 'sint8',    lambda x: x)     if v > 3    else None,
     lambda v:  ('waytype',  'uint8',    lambda x: x)     if v > 2    else None,
@@ -197,7 +329,7 @@ TILEparam = (
     lambda v:  ('_dummy',   'uint32',   lambda x: x)     if v== 0    else None,
     lambda v:  ('phasen',   'uint16',   lambda x: x)     if v > -1   else None,
     lambda v:  ('index',    'uint16',   lambda x: x)     if v > -1   else None,
-    lambda v:  ('seasons',  'uint8',    lambda x: x)     if v > 1    else None,
+    lambda v:  ('season',   'uint8',    lambda x: x)     if v > 1    else None,
 )
 
 TREEparam = (
@@ -273,7 +405,7 @@ WAYparam = (
 
 WYOBparam = (
 #               attrname,   type,       hook,            version,    None
-    lambda v:  ('cost',     'uint32',   lambda x: x)     if v > 0    else None,
+    lambda v:  ('cost',     'uint32',   lambda x: x/100) if v > 0    else None,
     lambda v:  ('maintain', 'uint32',   lambda x: x)     if v > 0    else None,
     lambda v:  ('top_speed','uint32',   lambda x: x)     if v > 0    else None,
     lambda v:  ('intro',    'uint16',   lambda x: x)     if v > 0    else None,

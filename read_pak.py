@@ -11,7 +11,8 @@ import lib
 
 class PakFile(): #read .pak and extract into PakNode instance
     def __init__(self, path):
-    # http://www.ajisaba.net/python/binary.html
+        # http://www.ajisaba.net/python/binary.html
+        print(path)
         _fp = open(path, 'rb')
         self.path = path
         self.name = os.path.basename(path)
@@ -43,6 +44,7 @@ class PakNode():
         ] \
         = self.read_header(fp)
 
+        print(self.type)
         self.read_data(fp)
 
         self.child = []
@@ -105,9 +107,11 @@ class PakNode():
             packfmt = '<i'
             packlen = 4
         else:
+            print("i don't know how compute", fmt)
             raise
 
         if rest - packlen < 0:
+            print('rest stream', rest, 'is too short to read', fmt)
             raise
 
         return [struct.unpack(packfmt, fp.read(packlen))[0], rest - packlen]
@@ -169,7 +173,7 @@ class PakNode():
             self.data_len -= sfile_len
 
         if self.data_len != 0:
-            print(self.type, self.data_len)
+            print(self.data_len, "doesn't match with len of known objects.")
             raise
 
         return None
@@ -243,16 +247,59 @@ class GOBJNode(PakNode):
     pass
 
 class IMGNode(PakNode):
+
     def read_data(self, fp):
-        self.img = fp.read(self.data_len)
+        fp.seek(6,1)
+        [self.version, _] = self.read_LE(fp, 'uint8', self.data_len)
+        fp.seek(-7,1)
+        for c in getattr(lib, self.type + 'param'):
+            param = c(self.version)
+            if param != None:
+                [val, self.data_len] = self.read_LE(fp, param[1], self.data_len)
+                setattr(self, param[0], param[2](val))
+
+        if self.version == 3:
+            self.length = int(self.data_len / 2)
+        elif self.version == 0:
+            fp.seek(1,1)
+            self.data_len -= 1
+
+        self.img = fp.read(self.length * 2)
+        self.data_len -= self.length * 2
+
+        if self.data_len != 0:
+            print(self.data_len, "doesn't match with len of known objects.")
+            raise
+
+        return None
 
 class IMG1Node(PakNode):
     def read_data(self, fp):
-        self.img = fp.read(self.data_len)
+        self.version = 0
+
+        for c in getattr(lib, self.type + 'param'):
+            param = c(self.version)
+            if param != None:
+                [val, self.data_len] = self.read_LE(fp, param[1], self.data_len)
+                setattr(self, param[0], param[2](val))
+
+        if self.data_len != 0:
+            print(self.type, self.data_len)
+            raise
 
 class IMG2Node(PakNode):
     def read_data(self, fp):
-        self.img = fp.read(self.data_len)
+        self.version = 0
+
+        for c in getattr(lib, self.type + 'param'):
+            param = c(self.version)
+            if param != None:
+                [val, self.data_len] = self.read_LE(fp, param[1], self.data_len)
+                setattr(self, param[0], param[2](val))
+
+        if self.data_len != 0:
+            print(self.type, self.data_len)
+            raise
 
 class MENUNode(PakNode):
     def read_data(self, fp):

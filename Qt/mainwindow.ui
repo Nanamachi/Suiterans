@@ -17,24 +17,54 @@
    <layout class="QHBoxLayout" name="horizontalLayout_3">
     <item>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="2" column="2">
-       <widget class="QGraphicsView" name="imgview"/>
-      </item>
-      <item row="0" column="1" colspan="2">
-       <widget class="QTableView" name="paklist"/>
-      </item>
-      <item row="2" column="1">
-       <widget class="QTableView" name="pakinfo"/>
-      </item>
-      <item row="0" column="0" rowspan="4">
-       <widget class="QListView" name="folderlist"/>
-      </item>
-      <item row="3" column="1" colspan="2">
-       <widget class="QPushButton" name="pushButton">
-        <property name="text">
-         <string>Push ME!</string>
+      <item row="1" column="0" rowspan="5">
+       <widget class="QListView" name="folderlist">
+        <property name="acceptDrops">
+         <bool>true</bool>
+        </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::EditKeyPressed</set>
+        </property>
+        <property name="dragEnabled">
+         <bool>true</bool>
         </property>
        </widget>
+      </item>
+      <item row="4" column="3" rowspan="3">
+       <widget class="QGraphicsView" name="imgview">
+        <property name="acceptDrops">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" rowspan="3" colspan="3">
+       <widget class="QTableView" name="paklist">
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+        <property name="sortingEnabled">
+         <bool>true</bool>
+        </property>
+        <property name="cornerButtonEnabled">
+         <bool>false</bool>
+        </property>
+        <attribute name="horizontalHeaderDefaultSectionSize">
+         <number>250</number>
+        </attribute>
+        <attribute name="verticalHeaderDefaultSectionSize">
+         <number>25</number>
+        </attribute>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QProgressBar" name="progressBar">
+        <property name="value">
+         <number>0</number>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1" rowspan="3" colspan="2">
+       <widget class="QTableView" name="pakinfo"/>
       </item>
      </layout>
     </item>
@@ -77,6 +107,12 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>folderlist</tabstop>
+  <tabstop>paklist</tabstop>
+  <tabstop>pakinfo</tabstop>
+  <tabstop>imgview</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
