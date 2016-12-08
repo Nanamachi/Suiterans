@@ -2,7 +2,6 @@
 import sys
 import struct
 import os
-from PIL import Image
 import PyQt5.QtCore as QC
 import PyQt5.QtGui as QG
 import PyQt5.QtWidgets as QW
@@ -12,7 +11,6 @@ import lib
 class PakFile(): #read .pak and extract into PakNode instance
     def __init__(self, path):
         # http://www.ajisaba.net/python/binary.html
-        print(path)
         _fp = open(path, 'rb')
         self.path = path
         self.name = os.path.basename(path)
@@ -44,7 +42,6 @@ class PakNode():
         ] \
         = self.read_header(fp)
 
-        print(self.type)
         self.read_data(fp)
 
         self.child = []
