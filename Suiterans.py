@@ -9,7 +9,10 @@ import Qt.mainwindow as wi
 import core
 import lib
 
+translator = QC.QTranslator()
+translator.load('locale/Suiterans_ja')
 app = QW.QApplication(sys.argv)
+app.installTranslator(translator)
 window = QW.QMainWindow()
 ui = wi.Ui_MainWindow()
 ui.setupUi(window)
@@ -96,5 +99,4 @@ def show_obj(objIndex):
 
     ui.pakinfo.setModel(obj_model)
 
-if __name__ == '__main__':
-    call_main()
+call_main()
