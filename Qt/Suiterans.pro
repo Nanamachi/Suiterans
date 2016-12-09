@@ -11,8 +11,9 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = Suiterans
 TEMPLATE = app
 
-
+lupdate_only{
 SOURCES += ../Suiterans.py
+}
 HEADERS  +=
 FORMS    += mainwindow.ui
 

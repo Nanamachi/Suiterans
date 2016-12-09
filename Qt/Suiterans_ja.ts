@@ -34,7 +34,7 @@
     <message>
         <location filename="mainwindow.ui" line="128"/>
         <source>Add Simutrans .pak folder</source>
-        <translation>pak suiteを追加する</translation>
+        <translation>pakフォルダを追加する</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="133"/>

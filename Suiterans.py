@@ -100,8 +100,8 @@ def show_obj(objIndex):
     for attr in lib.displayable_node:
         if hasattr(obj, attr):
             Qtpo = [QG.QStandardItem() for i in range(2)]
-            Qtpo[0].setText(attr)
-            Qtpo[1].setText(str(getattr(obj, attr)))
+            Qtpo[0].setText(_translate('pakinfo', attr))
+            Qtpo[1].setText(_translate('pakinfo', str(getattr(obj, attr))))
 
             Qtpo[0].setEditable(False)
             Qtpo[1].setEditable(False)
