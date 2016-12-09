@@ -10,7 +10,7 @@ options = {
     'dist_dir' : 'Suiterans',
 }
 setup(
-    windows = ['GUI.py'],
+    windows = ['Suiterans.py'],
     options = {'py2exe' : options},
     data_files = [("platforms",glob.glob(
         "D:\\Program Files (x86)\\Python\\Lib\\site-packages\\PyQt5\\plugins\\platforms\\qwindows.dll"

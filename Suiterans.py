@@ -5,7 +5,7 @@ import PyQt5.QtWidgets as QW
 import PyQt5.QtCore as QC
 import PyQt5.QtGui as QG
 
-import Qt.window as wi
+import Qt.mainwindow as wi
 import core
 import lib
 

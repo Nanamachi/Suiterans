@@ -7,6 +7,7 @@ import PyQt5.QtGui as QG
 import PyQt5.QtWidgets as QW
 
 import lib
+from customErr import *
 
 class PakFile(): #read .pak and extract into PakNode instance
     def __init__(self, path):
@@ -34,13 +35,9 @@ class PakFile(): #read .pak and extract into PakNode instance
         return "<Simutrans Pak File '{}'>".format(self.path)
 
 class PakNode():
-    def __init__(self, fp): #read data from binary and generate child Nodes
-        [
-            self.type,
-            self.child_count,
-            self.data_len,
-        ] \
-        = self.read_header(fp)
+    def __init__(self, fp): #read data from binary and spawn child Nodes
+        [self.type, self.child_count, self.data_len,] \
+            = self.read_header(fp)
 
         self.read_data(fp)
 
@@ -55,12 +52,11 @@ class PakNode():
 
             self.child.append(child_class(fp))
 
-
         if self.type in lib.named_obj:
-            for i,c in enumerate(self.child):
+            for c in self.child:
                 if type(c) == CURSNode:
-                    _name_node   = self.child[i].child[0]
-                    _author_node = self.child[i].child[1]
+                    _name_node   = c.child[0]
+                    _author_node = c.child[1]
                     break
             else:
                 _name_node   = self.child[0]
@@ -79,12 +75,12 @@ class PakNode():
         return None
 
     def __repr__(self):
-        if (self.type in lib.named_obj) or self.type == 'FACT':
+        if hasattr(self, 'name'):
             return "<Simutrans {0}: {1}>".format(self.type, self.name)
         else:
             return "<Simutrans {} Node>".format(self.type)
 
-    def read_LE(self, fp, fmt, rest):
+    def read_LE(self, fp, fmt, rest): #read Liettle Endian format
         if fmt == 'uint8':
             packfmt = '<B'
             packlen = 1
@@ -103,15 +99,30 @@ class PakNode():
         elif fmt == 'sint32':
             packfmt = '<i'
             packlen = 4
+        elif fmt[0:4] == 'ufix':
+            #unsigned fixed point
+            #ex.) 'ufix0816' means '0xAB.CD'
+            #this func return the value multiplied 100 'cause
+            #ufix format mostly used percent format.
+            packlen = int(fmt[6:8]) >> 3
+            shamt = int(fmt[4:6])
+            if packlen == 1:
+                packfmt = '<B'
+            elif packlen == 2:
+                packfmt = '<H'
+            elif packlen == 4:
+                packfmt = '<I'
         else:
-            print("i don't know how compute", fmt)
-            raise
+            raise FormatError(fmt)
 
         if rest - packlen < 0:
-            print('rest stream', rest, 'is too short to read', fmt)
-            raise
+            raise StreamTooShortError(rest,fmt)
 
-        return [struct.unpack(packfmt, fp.read(packlen))[0], rest - packlen]
+        ret = struct.unpack(packfmt, fp.read(packlen))[0]
+        if fmt[0:4] == 'ufix':
+            ret = (ret * 100) >> shamt
+
+        return [ret, rest - packlen]
 
     def read_header(self, fp): #read binary and return headerdata
         typ = fp.read(4).decode()
@@ -131,7 +142,7 @@ class PakNode():
             self.intro_month = int(self.intro % 12) + 1
         else:
             self.intro_year  = int(self.intro / 16)
-            self.intro_year  = int(self.intro % 16) + 1
+            self.intro_month = int(self.intro % 16) + 1
 
         return None
 
@@ -141,16 +152,20 @@ class PakNode():
             self.retire_month = int(self.retire % 12) + 1
         else:
             self.retire_year  = int(self.retire / 16)
-            self.retire_year  = int(self.retire % 16) + 1
+            self.retire_month = int(self.retire % 16) + 1
 
         return None
 
-    def read_data(self, fp):
+    def read_data(self, fp): #read own data with list defined by lib.py
+
+        #get version
         [dump, self.data_len] = self.read_LE(fp, 'uint16', self.data_len)
         self.version = dump & 0x7FFF if dump & 0x8000 else 0
         if self.version == 0:
             fp.seek(-2, 1)
             self.data_len += 2
+
+        #read self param
         for c in getattr(lib, self.type + 'param'):
             param = c(self.version)
             if param != None:
@@ -170,8 +185,7 @@ class PakNode():
             self.data_len -= sfile_len
 
         if self.data_len != 0:
-            print(self.data_len, "doesn't match with len of known objects.")
-            raise
+            raise StreamTooLongError(self.data_len, self.version)
 
         return None
 
@@ -265,8 +279,7 @@ class IMGNode(PakNode):
         self.data_len -= self.length * 2
 
         if self.data_len != 0:
-            print(self.data_len, "doesn't match with len of known objects.")
-            raise
+            raise StreamTooLongError(self.data_len, self.version)
 
         return None
 
@@ -281,8 +294,7 @@ class IMG1Node(PakNode):
                 setattr(self, param[0], param[2](val))
 
         if self.data_len != 0:
-            print(self.type, self.data_len)
-            raise
+            raise StreamTooLongError(self.data_len, self.version)
 
 class IMG2Node(PakNode):
     def read_data(self, fp):
@@ -295,9 +307,8 @@ class IMG2Node(PakNode):
                 setattr(self, param[0], param[2](val))
 
         if self.data_len != 0:
-            print(self.type, self.data_len)
-            raise
-
+            raise StreamTooLongError(self.data_len, self.version)
+            
 class MENUNode(PakNode):
     def read_data(self, fp):
         pass
@@ -334,7 +345,7 @@ class SYMBNode(PakNode):
 
 class TEXTNode(PakNode):
     def read_data(self, fp):
-        self.text = fp.read(self.data_len).decode('sjis', errors = 'ignore')
+        self.text = fp.read(self.data_len).decode('sjis', errors = 'ignore')[:-1]
 
 class TILENode(PakNode):
     pass

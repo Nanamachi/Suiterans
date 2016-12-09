@@ -12,8 +12,10 @@ TARGET = Suiterans
 TEMPLATE = app
 
 
-SOURCES +=
-
+SOURCES += ../Suiterans.py
 HEADERS  +=
-
 FORMS    += mainwindow.ui
+
+TRANSLATIONS += Suiterans_ja.ts
+
+DISTFILES +=
