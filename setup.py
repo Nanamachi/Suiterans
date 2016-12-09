@@ -1,18 +1,25 @@
-from distutils.core import setup
-import py2exe
 import glob
+import sys
+from cx_Freeze import setup, Executable
+
+base = 'Win32GUI' if sys.platform == 'win32' else None
 
 options = {
-    'compressed' : True,
     'optimize' : 2,
-    'bundle_files': 1,
     'includes' : ['sip',],
-    'dist_dir' : 'Suiterans',
+    'build_exe' : 'Suiterans',
+    # 'include_files' :\
+    #     "D:\\Program Files\\Python\\Lib\\site-packages"\
+    #     + "\\PyQt5\\Qt\\plugins\\platforms\\qwindows.dll"
+    'include_files' : "locale/",
 }
+
+exe = Executable(script = 'Suiterans.py', base = base)
+
 setup(
-    windows = ['GUI.py'],
-    options = {'py2exe' : options},
-    data_files = [("platforms",glob.glob(
-        "D:\\Program Files (x86)\\Python\\Lib\\site-packages\\PyQt5\\plugins\\platforms\\qwindows.dll"
-    ))]
+    name = "Suiterans",
+    version = "0.0.2",
+    description = "Suiterans---Simutrans pak management Suite",
+    executables = [exe],
+    options = {'build_exe' : options},
 )

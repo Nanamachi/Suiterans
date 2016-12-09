@@ -1,15 +1,20 @@
 # -*- coding: utf-8 -*-
 import sys
 import glob
+import os
 import PyQt5.QtWidgets as QW
 import PyQt5.QtCore as QC
 import PyQt5.QtGui as QG
 
-import Qt.window as wi
+import Qt.mainwindow as wi
 import core
 import lib
 
+_translate = QC.QCoreApplication.translate
+translator = QC.QTranslator()
+translator.load('locale/Suiterans_ja')
 app = QW.QApplication(sys.argv)
+app.installTranslator(translator)
 window = QW.QMainWindow()
 ui = wi.Ui_MainWindow()
 ui.setupUi(window)
@@ -17,6 +22,13 @@ ui.setupUi(window)
 def call_main():
 
     ui.actionExit.triggered.connect(app.quit)
+
+    show_paksuiteList()
+
+    window.show()
+    sys.exit(app.exec_())
+
+def show_paksuiteList():
 
     paksuites_model = QG.QStandardItemModel(0,1)
     paksuites = core.read_paksuites()
@@ -29,8 +41,9 @@ def call_main():
     ui.folderlist.setModel(paksuites_model)
     ui.folderlist.doubleClicked.connect(show_paksuite)
 
-    window.show()
-    sys.exit(app.exec_())
+    ui.actionAdd_Simutrans_pak_folder.triggered.connect(select_folder)
+
+    return len(paksuites)
 
 def show_paksuite(paksuiteIndex):
 
@@ -96,5 +109,24 @@ def show_obj(objIndex):
 
     ui.pakinfo.setModel(obj_model)
 
-if __name__ == '__main__':
-    call_main()
+def select_folder():
+    dialog = QW.QFileDialog()
+    pakfolder = dialog.getExistingDirectory()
+
+    if pakfolder != '':
+        name = os.path.basename(pakfolder)
+        dialog = QW.QInputDialog()
+        name, isAdd = dialog.getText(
+            dialog,
+            _translate("InputDialog", 'Add New pak Suite...'),
+            _translate("InputDialog", 'Please write new pak Suite name'),
+            QW.QLineEdit.Normal,
+            name
+        )
+        if isAdd:
+            core.write_paksuite(name, pakfolder)
+        show_paksuiteList()
+
+    return None
+
+call_main()

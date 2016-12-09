@@ -6,6 +6,7 @@ import codecs
 import json
 
 import read_pak
+from customErr import *
 
 _op = os.path
 
@@ -14,11 +15,10 @@ class PakSuite():
     def __init__(self, path):
         self.path_main = path
         self.path_root, self.name = _op.split(path)
+        self.path_addon = _op.join(self.path_root, 'addons', self.name)
         self.amount = self.get_amount()
 
     def get_amount(self):
-        self.path_addon \
-            = _op.join(self.path_root, 'addons', self.name)
         amount \
             = len(glob.glob(self.path_main + '\\*.pak')) \
             + len(glob.glob(self.path_addon + '\\*.pak'))
@@ -41,6 +41,18 @@ def read_paksuites():
         configf.close()
 
     return paksuites
+
+def write_paksuite(name, path, overwrite = False):
+    configfn = os.path.join('conf/', name + '.conf')
+    if (os.path.exist(configfn)) and not overwrite:
+        raise FileExistsError(configfn)
+    else:
+        configf = codecs.open(configfn, 'w', 'utf-8')
+        json.dump(
+            {'dir':path, 'name':name},
+            configf,
+            ensure_ascii = False
+        )
 
 if __name__ == '__main__':
     pass
