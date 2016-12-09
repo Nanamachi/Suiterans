@@ -1,0 +1,1 @@
+pylupdate Qt\Suiterans.pro

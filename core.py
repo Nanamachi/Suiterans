@@ -43,8 +43,8 @@ def read_paksuites():
     return paksuites
 
 def write_paksuite(name, path, overwrite = False):
-    configfn = glob.glob('conf/' + name + '.conf')
-    if (os.path.exist(path)) and not overwrite:
+    configfn = os.path.join('conf/', name + '.conf')
+    if (os.path.exist(configfn)) and not overwrite:
         raise FileExistsError(configfn)
     else:
         configf = codecs.open(configfn, 'w', 'utf-8')

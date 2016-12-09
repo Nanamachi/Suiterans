@@ -98,9 +98,10 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Suiterans"))
         self.menuSuiterans_v1_0_0.setTitle(_translate("MainWindow", "File"))
         self.actionOpen_pak_files.setText(_translate("MainWindow", "Open .pak files"))
         self.actionAdd_Simutrans_pak_folder.setText(_translate("MainWindow", "Add Simutrans .pak folder"))
         self.actionExit.setText(_translate("MainWindow", "Exit"))
         self.actionExit.setShortcut(_translate("MainWindow", "Ctrl+Q"))
+

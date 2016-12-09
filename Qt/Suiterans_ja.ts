@@ -1,11 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="ja_JP" sourcelanguage="en_US">
+<!DOCTYPE TS>
+<TS version="2.1" language="ja_JP" sourcelanguage="en_US">
+<context>
+    <name>InputDialog</name>
+    <message>
+        <location filename="../Suiterans.py" line="119"/>
+        <source>Add New pak Suite...</source>
+        <translation>pak suiteを追加する...</translation>
+    </message>
+    <message>
+        <location filename="../Suiterans.py" line="119"/>
+        <source>Please write new pak Suite name</source>
+        <translation>新しいpak suiteの名前を入力してください</translation>
+    </message>
+</context>
 <context>
     <name>MainWindow</name>
     <message>
         <location filename="mainwindow.ui" line="14"/>
-        <source>MainWindow</source>
-        <translation></translation>
+        <source>Suiterans</source>
+        <translation>Suiterans</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="112"/>
@@ -20,12 +34,12 @@
     <message>
         <location filename="mainwindow.ui" line="128"/>
         <source>Add Simutrans .pak folder</source>
-        <translation>pakフォルダを追加する</translation>
+        <translation>pak suiteを追加する</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="133"/>
         <source>Exit</source>
-        <translation>終了</translation>
+        <translation>Suiteransを終了する</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="136"/>
