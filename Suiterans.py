@@ -9,6 +9,7 @@ import PyQt5.QtGui as QG
 import Qt.mainwindow as wi
 import core
 import lib
+import painter
 
 _translate = QC.QCoreApplication.translate
 translator = QC.QTranslator()
@@ -109,10 +110,13 @@ def show_obj(objIndex):
 
     ui.pakinfo.setModel(obj_model)
 
-    imgsize = QC.QSize(128,128)
-    imgmap = QG.QImage(imgsize,11)
-    bgcol = QG.QColor(123,170,57)
+    imgsize = QC.QSize(128, 128)
+    imgmap = QG.QImage(imgsize, QG.QImage.Format_RGB555)
+    bgcol = QG.QColor(123, 170, 57)
     imgmap.fill(bgcol)
+
+    if hasattr(obj, 'img'):
+        painter.paint(imgmap, obj.img)
 
     ui.label.setPixmap(QG.QPixmap.fromImage(imgmap))
 

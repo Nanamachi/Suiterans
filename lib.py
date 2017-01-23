@@ -16,6 +16,10 @@ named_obj = (
     'WYOB',
 )
 
+imaged_obj = (
+    'VHCL'
+)
+
 displayable_node = (
     'name',
     'type',

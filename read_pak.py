@@ -46,6 +46,7 @@ class PakNode():
 
             self.child.append(child_class(fp))
 
+        #set name and author from child TEXTNode
         if self.type in lib.named_obj:
             for c in self.child:
                 if type(c) == CURSNode:
@@ -66,11 +67,21 @@ class PakNode():
             self.name   = self.child[0].name
             self.author = self.child[0].author
 
+        #set image from child IMGNode
+        if self.type in lib.imaged_obj:
+            for c in self.child:
+                if type(c) == IMG1Node:
+                    self.img = c.child[0]
+
         return None
 
     def __repr__(self):
         if hasattr(self, 'name'):
             return "<Simutrans {0}: {1}>".format(self.type, self.name)
+        elif hasattr(self, 'text'):
+            return "<Simutrans {0}: {1}>".format(self.type, self.text)
+        elif hasattr(self, 'xref'):
+            return "<Simutrans {0}: {1}>".format(self.type, self.xref)
         else:
             return "<Simutrans {} Node>".format(self.type)
 
@@ -266,32 +277,8 @@ class IMGNode(PakNode):
         if self.version == 3:
             self.length = int(self.data_len / 2)
 
-        status = 'brank'
-        row = self.y
-        column = 0
-
-        for i in range(self.length):
-            data, self.data_len = self.read_LE(fp, 'uint16', self.data_len)
-
-            if status == 'brank': #if number of transparent cell
-                color = -1
-                status = 'colen'
-            elif status == 'colen': #if number of colored cell
-                color = -1
-                status = data
-            else:
-                if data >= 0x8000: #if special color
-                    color_index = data & 0x1F
-                    color = lib.special_color[color_index]
-                else:
-                    color = data
-
-                status -= 1
-                if status == 0:
-                    status = 'brank'
-
-            if color > 0:
-                pass
+        self.img = fp.read(self.length * 2)
+        self.data_len -= self.length * 2
 
         if self.data_len != 0:
             raise StreamTooLongError(self.data_len, self.version)
