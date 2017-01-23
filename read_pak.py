@@ -16,16 +16,10 @@ class PakFile(): #read .pak and extract into PakNode instance
         self.path = path
         self.name = os.path.basename(path)
         while True:
-            if _fp.read(1) != b'R':
-                continue
-            elif _fp.read(1) != b'O':
-                _fp.seek(-1,1)
-                continue
-            elif _fp.read(1) != b'O':
-                _fp.seek(-1,1)
-                continue
-            elif _fp.read(1) == b'T':
+            if _fp.read(4) == b'ROOT':
                 break
+            else:
+                _fp.seek(-3,1)
 
         _fp.seek(-4, 1) #back 4chars from here
         self.root = ROOTNode(_fp)
@@ -271,12 +265,33 @@ class IMGNode(PakNode):
 
         if self.version == 3:
             self.length = int(self.data_len / 2)
-        elif self.version == 0:
-            fp.seek(1,1)
-            self.data_len -= 1
 
-        self.img = fp.read(self.length * 2)
-        self.data_len -= self.length * 2
+        status = 'brank'
+        row = self.y
+        column = 0
+
+        for i in range(self.length):
+            data, self.data_len = self.read_LE(fp, 'uint16', self.data_len)
+
+            if status == 'brank': #if number of transparent cell
+                color = -1
+                status = 'colen'
+            elif status == 'colen': #if number of colored cell
+                color = -1
+                status = data
+            else:
+                if data >= 0x8000: #if special color
+                    color_index = data & 0x1F
+                    color = lib.special_color[color_index]
+                else:
+                    color = data
+
+                status -= 1
+                if status == 0:
+                    status = 'brank'
+
+            if color > 0:
+                pass
 
         if self.data_len != 0:
             raise StreamTooLongError(self.data_len, self.version)
@@ -308,7 +323,7 @@ class IMG2Node(PakNode):
 
         if self.data_len != 0:
             raise StreamTooLongError(self.data_len, self.version)
-            
+
 class MENUNode(PakNode):
     def read_data(self, fp):
         pass

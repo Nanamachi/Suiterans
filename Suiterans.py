@@ -109,6 +109,13 @@ def show_obj(objIndex):
 
     ui.pakinfo.setModel(obj_model)
 
+    imgsize = QC.QSize(128,128)
+    imgmap = QG.QImage(imgsize,11)
+    bgcol = QG.QColor(123,170,57)
+    imgmap.fill(bgcol)
+
+    ui.label.setPixmap(QG.QPixmap.fromImage(imgmap))
+
 def select_folder():
     dialog = QW.QFileDialog()
     pakfolder = dialog.getExistingDirectory()
