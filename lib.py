@@ -17,7 +17,19 @@ named_obj = (
 )
 
 imaged_obj = (
-    'VHCL'
+    'BRDG',
+    'BUIL',
+    'CCAR',
+    'CRSS',
+    'GOOD',
+    'GOBJ',
+    'PASS',
+    'SIGN',
+    'TUNL',
+    'TREE',
+    'VHCL',
+    'WAY' ,
+    'WYOB',
 )
 
 displayable_node = (

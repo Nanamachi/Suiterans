@@ -26,3 +26,11 @@ class StreamTooLongError(Exception):
             + "Given byte-len doesn't match with known byte-len."\
             + "Maybe the version " + str(self._v) + " is too new to read."\
             + "Diff to known byte-len is " + str(self._diff)
+
+class NotPakSuiteError(Exception):
+    def __init__(self, dirname):
+        self._dirname = dirname
+
+    def __repr__(self):
+        return "NotPakSuiteError: "\
+        + dirname + "doesn't seem to be a Simutrans pak folder."

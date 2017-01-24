@@ -17,6 +17,11 @@ class PakSuite():
         self.path_root, self.name = _op.split(path)
         self.path_addon = _op.join(self.path_root, 'addons', self.name)
         self.amount = self.get_amount()
+        outsidepath = _op.join(self.path_main,'ground.Outside.pak')
+        if _op.isfile(outsidepath):
+            self.size = read_pak.PakFile(outsidepath).root.desc(0,2,0,0).width
+        else:
+            raise NotPakSuiteError(self.name)
 
     def get_amount(self):
         amount \

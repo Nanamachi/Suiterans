@@ -1,8 +1,25 @@
 # -*- coding: utf-8 -*-
+import sys
+
 import PyQt5.QtGui as QG
 import PyQt5.QtCore as QC
+import PyQt5.QtWidgets as QW
 
 import lib
+
+def show_img(imgnode):
+
+    app = QW.QApplication(sys.argv)
+
+    label = QW.QLabel()
+    imgmap = QG.QImage(128, 128, QG.QImage.Format_RGB555)
+    bgcol = QG.QColor(123, 170, 57)
+    imgmap.fill(bgcol)
+    paint(imgmap, imgnode)
+    label.setPixmap(QG.QPixmap.fromImage(imgmap))
+    label.show()
+
+    app.exec_()
 
 def paint(qimg, imgnode):
 

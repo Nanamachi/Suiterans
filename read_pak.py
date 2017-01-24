@@ -69,9 +69,7 @@ class PakNode():
 
         #set image from child IMGNode
         if self.type in lib.imaged_obj:
-            for c in self.child:
-                if type(c) == IMG1Node:
-                    self.img = c.child[0]
+            self.img = self._searchIMG(self)
 
         return None
 
@@ -193,6 +191,36 @@ class PakNode():
             raise StreamTooLongError(self.data_len, self.version)
 
         return None
+
+    def show_tree(self, *number):
+        for n in number:
+            print(n, end = ' ')
+        print(self)
+        for i,c in enumerate(self.child):
+            c.show_tree(*number, i)
+
+        return None
+
+    def desc(self, *number):
+        if len(number) == 0:
+            return self
+        else:
+            return self.child[number[0]].desc(*number[1:])
+
+    def _searchIMG(self, obj):
+        for c in obj.child:
+            if type(c) == IMG1Node and c.child_count != 0:
+                attrimg = c.child[0]
+                break
+            elif type(c) == IMG2Node and c.child_count != 0:
+                attrimg = self._searchIMG(c)
+                break
+            elif type(c) == TILENode and c.child_count != 0:
+                attrimg = self._searchIMG(c)
+                break
+            else:
+                attrimg = None
+        return attrimg
 
 class BRDGNode(PakNode):
     def read_data(self, fp):
