@@ -12,7 +12,9 @@ TARGET = Suiterans
 TEMPLATE = app
 
 lupdate_only{
-SOURCES += ../Suiterans.py
+SOURCES +=\
+    ../Suiterans.py\
+    ../lib.py
 }
 HEADERS  +=
 FORMS    += mainwindow.ui

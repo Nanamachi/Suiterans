@@ -1,5 +1,7 @@
 # -*- coding= utf-8 -*-
 
+translate = lambda x,y: y
+
 named_obj = (
     'BRDG',
     'BUIL',
@@ -21,7 +23,7 @@ imaged_obj = (
     'BUIL',
     'CCAR',
     'CRSS',
-    'GOOD',
+    'FACT',
     'GOBJ',
     'PASS',
     'SIGN',
@@ -136,39 +138,39 @@ displayable_node = (
 )
 
 special_color = (
-	0x244B67, # Player color 1
-	0x395E7C,
-	0x4C7191,
-	0x6084A7,
-	0x7497BD,
-	0x88ABD3,
-	0x9CBEE9,
-	0xB0D2FF,
+    0x244B67, # Player color 1
+    0x395E7C,
+    0x4C7191,
+    0x6084A7,
+    0x7497BD,
+    0x88ABD3,
+    0x9CBEE9,
+    0xB0D2FF,
 
-	0x7B5803, # Player color 2
-	0x8E6F04,
-	0xA18605,
-	0xB49D07,
-	0xC6B408,
-	0xD9CB0A,
-	0xECE20B,
-	0xFFF90D,
+    0x7B5803, # Player color 2
+    0x8E6F04,
+    0xA18605,
+    0xB49D07,
+    0xC6B408,
+    0xD9CB0A,
+    0xECE20B,
+    0xFFF90D,
 
-	0x57656F, # Dark windows, lit yellowish at night
-	0x7F9BF1, # Lighter windows, lit blueish at night
-	0xFFFF53, # Yellow light
-	0xFF211D, # Red light
-	0x01DD01, # Green light
-	0x6B6B6B, # Non-darkening grey 1 (menus)
-	0x9B9B9B, # Non-darkening grey 2 (menus)
-	0xB3B3B3, # non-darkening grey 3 (menus)
-	0xC9C9C9, # Non-darkening grey 4 (menus)
-	0xDFDFDF, # Non-darkening grey 5 (menus)
-	0xE3E3FF, # Nearly white light at day, yellowish light at night
-	0xC1B1D1, # Windows, lit yellow
-	0x4D4D4D, # Windows, lit yellow
-	0xFF017F, # purple light
-	0x0101FF, # blue light
+    0x57656F, # Dark windows, lit yellowish at night
+    0x7F9BF1, # Lighter windows, lit blueish at night
+    0xFFFF53, # Yellow light
+    0xFF211D, # Red light
+    0x01DD01, # Green light
+    0x6B6B6B, # Non-darkening grey 1 (menus)
+    0x9B9B9B, # Non-darkening grey 2 (menus)
+    0xB3B3B3, # non-darkening grey 3 (menus)
+    0xC9C9C9, # Non-darkening grey 4 (menus)
+    0xDFDFDF, # Non-darkening grey 5 (menus)
+    0xE3E3FF, # Nearly white light at day, yellowish light at night
+    0xC1B1D1, # Windows, lit yellow
+    0x4D4D4D, # Windows, lit yellow
+    0xFF017F, # purple light
+    0x0101FF, # blue light
 )
 
 BRDGparam = (
@@ -260,9 +262,9 @@ FACTparam = (
     lambda v:  ('elec_bst', 'ufix0816', lambda x: x)     if v > 2    else None,
     lambda v:  ('pax_bst',  'ufix0816', lambda x: x)     if v > 2    else None,
     lambda v:  ('mail_bst', 'ufix0816', lambda x: x)     if v > 2    else None,
-    lambda v:  ('elec_amt', 'uint16',   lambda x: x)     if v > 2    else None,
-    lambda v:  ('pax_dmd',  'uint16',   lambda x: x)     if v > 2    else None,
-    lambda v:  ('mail_dmd', 'uint16',   lambda x: x)     if v > 2    else None,
+    lambda v:  ('elec_amt', 'sint16',   lambda x: x)     if v > 2    else None,
+    lambda v:  ('pax_dmd',  'sint16',   lambda x: x)     if v > 2    else None,
+    lambda v:  ('mail_dmd', 'sint16',   lambda x: x)     if v > 2    else None,
 )
 
 FFCLparam = (
@@ -466,3 +468,107 @@ WYOBparam = (
     lambda v:  ('waytype',  'uint8',    lambda x: x)     if v > 0    else None,
     lambda v:  ('own_wtyp', 'uint8',    lambda x: x)     if v > 0    else None,
 )
+
+_trans_word = {
+    'name':         translate('parameter','name'),
+    'type':         translate('parameter','type'),
+    'author':       translate('parameter','author'),
+    'cost':         translate('parameter','cost'),
+    'intro_year':   translate('parameter','intro_year'),
+    'intro_month':  translate('parameter','intro_month'),
+    'retire_year':  translate('parameter','retire_year'),
+    'retire_month': translate('parameter','retire_month'),
+    'anim_time':    translate('parameter','anim_time'),
+    'axle_load':    translate('parameter','axle_load'),
+    'brd_ptls':     translate('parameter','brd_ptls'),
+    'capacity':     translate('parameter','capacity'),
+    'category':     translate('parameter','category'),
+    'chance':       translate('parameter','chance'),
+    'climate':      translate('parameter','climate'),
+    'climates':     translate('parameter','climates'),
+    'color':        translate('parameter','color'),
+    'const_nx':     translate('parameter','const_nx'),
+    'const_pr':     translate('parameter','const_pr'),
+    'consume':      translate('parameter','consume'),
+    'cost_rmv':     translate('parameter','cost_rmv'),
+    'dist_wt':      translate('parameter','dist_wt'),
+    'draw_a_ob':    translate('parameter','draw_a_ob'),
+    'elec_amt':     translate('parameter','elec_amt'),
+    'elec_bst':     translate('parameter','elec_bst'),
+    'enables':      translate('parameter','enables'),
+    'engine':       translate('parameter','engine'),
+    'ex_data':      translate('parameter','ex_data'),
+    'exp_min':      translate('parameter','exp_min'),
+    'exp_prob':     translate('parameter','exp_prob'),
+    'exp_range':    translate('parameter','exp_range'),
+    'exp_time':     translate('parameter','exp_time'),
+    'factor':       translate('parameter','factor'),
+    'fields':       translate('parameter','fields'),
+    'fix_cost':     translate('parameter','fix_cost'),
+    'flags':        translate('parameter','flags'),
+    'flc_cls':      translate('parameter','flc_cls'),
+    'frei_imag':    translate('parameter','frei_imag'),
+    'g_type':       translate('parameter','g_type'),
+    'gear':         translate('parameter','gear'),
+    'has_way':      translate('parameter','has_way'),
+    'index':        translate('parameter','index'),
+    'layouts':      translate('parameter','layouts'),
+    'length':       translate('parameter','length'),
+    'level':        translate('parameter','level'),
+    'load_time':    translate('parameter','load_time'),
+    'location':     translate('parameter','location'),
+    'mail_bst':     translate('parameter','mail_bst'),
+    'mail_dmd':     translate('parameter','mail_dmd'),
+    'maintain':     translate('parameter','maintain'),
+    'max_fld':      translate('parameter','max_fld'),
+    'max_hei':      translate('parameter','max_hei'),
+    'max_len':      translate('parameter','max_len'),
+    'max_wt':       translate('parameter','max_wt'),
+    'min_fld':      translate('parameter','min_fld'),
+    'min_speed':    translate('parameter','min_speed'),
+    'off_left':     translate('parameter','off_left'),
+    'off_x':        translate('parameter','off_x'),
+    'off_y':        translate('parameter','off_y'),
+    'op_anm_t':     translate('parameter','op_anm_t'),
+    'own_wtyp':     translate('parameter','own_wtyp'),
+    'pax_bst':      translate('parameter','pax_bst'),
+    'pax_dmd':      translate('parameter','pax_dmd'),
+    'pax_lvl':      translate('parameter','pax_lvl'),
+    'payload':      translate('parameter','payload'),
+    'pdctivity':    translate('parameter','pdctivity'),
+    'phasen':       translate('parameter','phasen'),
+    'pillar_a':     translate('parameter','pillar_a'),
+    'pillar_e':     translate('parameter','pillar_e'),
+    'pos_x':        translate('parameter','pos_x'),
+    'pos_y':        translate('parameter','pos_y'),
+    'power':        translate('parameter','power'),
+    'price':        translate('parameter','price'),
+    'probablty':    translate('parameter','probablty'),
+    'prod_p_f':     translate('parameter','prod_p_f'),
+    'product':      translate('parameter','product'),
+    'range':        translate('parameter','range'),
+    'run_cost':     translate('parameter','run_cost'),
+    'season':       translate('parameter','season'),
+    'size_x':       translate('parameter','size_x'),
+    'size_y':       translate('parameter','size_y'),
+    'snow_img':     translate('parameter','snow_img'),
+    'sound':        translate('parameter','sound'),
+    'spawn_wt':     translate('parameter','spawn_wt'),
+    'spd_bonus':    translate('parameter','spd_bonus'),
+    'speed':        translate('parameter','speed'),
+    'start_fld':    translate('parameter','start_fld'),
+    'styp':         translate('parameter','styp'),
+    'sup_cnt':      translate('parameter','sup_cnt'),
+    'supply':       translate('parameter','supply'),
+    'top_speed':    translate('parameter','top_speed'),
+    'tree_on':      translate('parameter','tree_on'),
+    'u_type':       translate('parameter','u_type'),
+    'undergnd':     translate('parameter','undergnd'),
+    'value':        translate('parameter','value'),
+    'waytype':      translate('parameter','waytype'),
+    'weight':       translate('parameter','weight'),
+    'wt_p_unit':    translate('parameter','wt_p_unit'),
+    'xz_anm_t':     translate('parameter','xz_anm_t'),
+    'version':      translate('parameter','version'),
+    '__UnDefined__':translate('parameter','__UnDefined__'),
+}

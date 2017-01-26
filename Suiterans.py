@@ -24,120 +24,127 @@ def call_main():
 
     ui.actionExit.triggered.connect(app.quit)
 
-    show_paksuiteList()
+    vwr = Viewer()
 
     window.show()
     sys.exit(app.exec_())
 
-def show_paksuiteList():
+class Viewer():
 
-    paksuites_model = QG.QStandardItemModel(0,1)
-    paksuites = core.read_paksuites()
-    for ps in paksuites:
-        Qtps = QG.QStandardItem()
-        Qtps.setText(ps.name + ' | ' + str(ps.amount) + ' pak files')
-        Qtps.setData(ps)
-        Qtps.setEditable(False)
-        paksuites_model.appendRow(Qtps)
-    ui.folderlist.setModel(paksuites_model)
-    ui.folderlist.doubleClicked.connect(show_paksuite)
+    def __init__(self):
+        self.show_paksuiteList()
 
-    ui.actionAdd_Simutrans_pak_folder.triggered.connect(select_folder)
+    def show_paksuiteList(self):
 
-    return len(paksuites)
+        paksuites_model = QG.QStandardItemModel(0,1)
+        paksuites = core.read_paksuites()
+        for ps in paksuites:
+            Qtps = QG.QStandardItem()
+            Qtps.setText(ps.name + ' | ' + str(ps.amount) + ' pak files')
+            Qtps.setData(ps)
+            Qtps.setEditable(False)
+            paksuites_model.appendRow(Qtps)
+        ui.folderlist.setModel(paksuites_model)
+        ui.folderlist.doubleClicked.connect(self.show_paksuite)
 
-def show_paksuite(paksuiteIndex):
+        ui.actionAdd_Simutrans_pak_folder.triggered.connect(self.select_folder)
 
-    header_model = QG.QStandardItemModel(0,3)
-    header_list = [QG.QStandardItem() for i in range(3)]
-    for i, c in enumerate(['type', 'object name', 'file name']):
-        header_list[i].setText(c)
+        return len(paksuites)
 
-    header_model.appendRow(header_list)
-    ui.paklist.horizontalHeader().setModel(header_model)
+    def show_paksuite(self,paksuiteIndex):
 
-    paksuite = paksuiteIndex.model().item(paksuiteIndex.row()).data()
-    ui.progressBar.setMaximum(paksuite.amount)
-    if not hasattr(paksuite, 'pak') or paksuite.get_amount() != paksuite.amount:
-        paksuite.amount = paksuite.get_amount()
-        paksuite.pak = []
-        for i, pakf_path in\
-            enumerate(glob.glob(paksuite.path_main + '\\*.pak')):
-            paksuite.load_each(pakf_path)
-            ui.progressBar.setValue(i)
-        for j, pakf_path in\
-            enumerate(glob.glob(paksuite.path_addon + '\\*.pak')):
-            paksuite.load_each(pakf_path)
-            ui.progressBar.setValue(i+j)
+        self.paksuite = paksuiteIndex.model().item(paksuiteIndex.row()).data()
 
-    paklists_model = QG.QStandardItemModel(0,3)
+        header_model = QG.QStandardItemModel(0,3)
+        header_list = [QG.QStandardItem() for i in range(3)]
+        for i, c in enumerate(['type', 'object name', 'file name']):
+            header_list[i].setText(c)
 
-    for pakfile in paksuite.pak:
-        for obj in pakfile.root.child:
-            Qtpf = [QG.QStandardItem() for i in range(3)]
-            Qtpf[0].setText(obj.type)
-            if hasattr(obj, 'name'):
-                Qtpf[1].setText(obj.name)
-            Qtpf[2].setText(pakfile.name)
+        header_model.appendRow(header_list)
+        ui.paklist.horizontalHeader().setModel(header_model)
 
-            Qtpf[0].setData(obj)
-            Qtpf[1].setData(obj)
-            Qtpf[2].setData(obj)
+        ui.progressBar.setMaximum(self.paksuite.amount)
+        if not hasattr(self.paksuite, 'pak') \
+            or self.paksuite.get_amount() != self.paksuite.amount:
+            self.paksuite.amount = self.paksuite.get_amount()
+            self.paksuite.pak = []
+            for i, pakf_path in\
+                enumerate(glob.glob(self.paksuite.path_main + '\\*.pak')):
+                self.paksuite.load_each(pakf_path)
+                ui.progressBar.setValue(i)
+            for j, pakf_path in\
+                enumerate(glob.glob(self.paksuite.path_addon + '\\*.pak')):
+                self.paksuite.load_each(pakf_path)
+                ui.progressBar.setValue(i+j)
 
-            Qtpf[0].setEditable(False)
-            Qtpf[1].setEditable(False)
-            Qtpf[2].setEditable(False)
-            paklists_model.appendRow(Qtpf)
+        paklists_model = QG.QStandardItemModel(0,3)
 
-    ui.paklist.setModel(paklists_model)
-    ui.progressBar.setValue(0)
+        for pakfile in self.paksuite.pak:
+            for obj in pakfile.root.child:
+                Qtpf = [QG.QStandardItem() for i in range(3)]
+                Qtpf[0].setText(obj.type)
+                if hasattr(obj, 'name'):
+                    Qtpf[1].setText(obj.name)
+                Qtpf[2].setText(pakfile.name)
 
-    ui.paklist.clicked.connect(show_obj)
+                Qtpf[0].setData(obj)
+                Qtpf[1].setData(obj)
+                Qtpf[2].setData(obj)
 
-def show_obj(objIndex):
-    obj = objIndex.model().item(objIndex.row()).data()
+                Qtpf[0].setEditable(False)
+                Qtpf[1].setEditable(False)
+                Qtpf[2].setEditable(False)
+                paklists_model.appendRow(Qtpf)
 
-    obj_model = QG.QStandardItemModel(0,2)
-    for attr in lib.displayable_node:
-        if hasattr(obj, attr):
-            Qtpo = [QG.QStandardItem() for i in range(2)]
-            Qtpo[0].setText(_translate('pakinfo', attr))
-            Qtpo[1].setText(_translate('pakinfo', str(getattr(obj, attr))))
+        ui.paklist.setModel(paklists_model)
+        ui.progressBar.setValue(0)
 
-            Qtpo[0].setEditable(False)
-            Qtpo[1].setEditable(False)
-            obj_model.appendRow(Qtpo)
+        ui.paklist.clicked.connect(self.show_obj)
 
-    ui.pakinfo.setModel(obj_model)
+    def show_obj(self,objIndex):
+        obj = objIndex.model().item(objIndex.row()).data()
 
-    imgsize = QC.QSize(128, 128)
-    imgmap = QG.QImage(imgsize, QG.QImage.Format_RGB555)
-    bgcol = QG.QColor(123, 170, 57)
-    imgmap.fill(bgcol)
+        obj_model = QG.QStandardItemModel(0,2)
+        for attr in lib.displayable_node:
+            if hasattr(obj, attr):
+                Qtpo = [QG.QStandardItem() for i in range(2)]
+                Qtpo[0].setText(_translate('parameter', attr))
+                Qtpo[1].setText(_translate('parameter', str(getattr(obj, attr))))
 
-    if hasattr(obj, 'img'):
-        painter.paint(imgmap, obj.img)
+                Qtpo[0].setEditable(False)
+                Qtpo[1].setEditable(False)
+                obj_model.appendRow(Qtpo)
 
-    ui.label.setPixmap(QG.QPixmap.fromImage(imgmap))
+        ui.pakinfo.setModel(obj_model)
 
-def select_folder():
-    dialog = QW.QFileDialog()
-    pakfolder = dialog.getExistingDirectory()
+        imgsize = QC.QSize(self.paksuite.size, self.paksuite.size)
+        imgmap = QG.QImage(imgsize, QG.QImage.Format_RGB555)
+        bgcol = QG.QColor(123, 170, 57)
+        imgmap.fill(bgcol)
 
-    if pakfolder != '':
-        name = os.path.basename(pakfolder)
-        dialog = QW.QInputDialog()
-        name, isAdd = dialog.getText(
-            dialog,
-            _translate("InputDialog", 'Add New pak Suite...'),
-            _translate("InputDialog", 'Please write new pak Suite name'),
-            QW.QLineEdit.Normal,
-            name
-        )
-        if isAdd:
-            core.write_paksuite(name, pakfolder)
-        show_paksuiteList()
+        if obj.type in lib.imaged_obj:
+            painter.paintobj(imgmap, obj, self.paksuite.size)
 
-    return None
+        ui.label.setPixmap(QG.QPixmap.fromImage(imgmap))
+
+    def select_folder(self):
+        dialog = QW.QFileDialog()
+        pakfolder = dialog.getExistingDirectory()
+
+        if pakfolder != '':
+            name = os.path.basename(pakfolder)
+            dialog = QW.QInputDialog()
+            name, isAdd = dialog.getText(
+                dialog,
+                _translate("InputDialog", 'Add New pak Suite...'),
+                _translate("InputDialog", 'Please write new pak Suite name'),
+                QW.QLineEdit.Normal,
+                name
+            )
+            if isAdd:
+                core.write_paksuite(name, pakfolder)
+            self.show_paksuiteList()
+
+        return None
 
 call_main()

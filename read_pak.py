@@ -67,10 +67,6 @@ class PakNode():
             self.name   = self.child[0].name
             self.author = self.child[0].author
 
-        #set image from child IMGNode
-        if self.type in lib.imaged_obj:
-            self.img = self._searchIMG(self)
-
         return None
 
     def __repr__(self):
@@ -205,22 +201,22 @@ class PakNode():
         if len(number) == 0:
             return self
         else:
-            return self.child[number[0]].desc(*number[1:])
+            try:
+                ret = self.child[number[0]].desc(*number[1:])
+            except IndexError:
+                ret = None
+            return ret
 
-    def _searchIMG(self, obj):
+    def searchNode(self, obj, typ, pos = 0):
         for c in obj.child:
-            if type(c) == IMG1Node and c.child_count != 0:
-                attrimg = c.child[0]
-                break
-            elif type(c) == IMG2Node and c.child_count != 0:
-                attrimg = self._searchIMG(c)
-                break
-            elif type(c) == TILENode and c.child_count != 0:
-                attrimg = self._searchIMG(c)
-                break
-            else:
-                attrimg = None
-        return attrimg
+            if c.type == typ and pos == 0:
+                return c
+            elif c.type == typ:
+                pos -= 1
+            elif c.child_count != 0:
+                return self.searchNode(c, typ)
+
+        return None
 
 class BRDGNode(PakNode):
     def read_data(self, fp):

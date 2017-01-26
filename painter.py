@@ -15,53 +15,85 @@ def show_img(imgnode):
     imgmap = QG.QImage(128, 128, QG.QImage.Format_RGB555)
     bgcol = QG.QColor(123, 170, 57)
     imgmap.fill(bgcol)
-    paint(imgmap, imgnode)
+    paint(imgmap, imgnode, QC.QPoint(0,0))
     label.setPixmap(QG.QPixmap.fromImage(imgmap))
     label.show()
 
     app.exec_()
 
-def paint(qimg, imgnode):
+def paintobj(qimg, obj, size):
 
-    status = 'blank'
-    penpos = QC.QPoint(
-        imgnode.x if imgnode.version == 3 else 0,
-        imgnode.y
-    )
-    print(imgnode.version)
+    if   obj.type == 'CRSS':
+        paint(qimg, obj.searchNode(obj,'IMG1',0).desc(0), QC.QPoint(0,0))
+        paint(qimg, obj.searchNode(obj,'IMG1',2).desc(0), QC.QPoint(0,0))
+    elif obj.type == 'BRDG':
+        paint(qimg, obj.searchNode(obj,'IMG1',0).desc(3), QC.QPoint(0,0))
+        paint(qimg, obj.searchNode(obj,'IMG1',1).desc(3), QC.QPoint(0,0))
+    elif obj.type == 'TUNL':
+        paint(qimg, obj.searchNode(obj,'IMG1',0).desc(0), QC.QPoint(0,0))
+        paint(qimg, obj.searchNode(obj,'IMG1',1).desc(0), QC.QPoint(0,0))
+    elif obj.type == 'WYOB':
+        paint(qimg, obj.searchNode(obj,'IMG1',0).desc(5), QC.QPoint(0,0))
+        paint(qimg, obj.searchNode(obj,'IMG1',1).desc(5), QC.QPoint(0,0))
+    elif obj.type == 'WAY' :
+        paint(qimg, obj.searchNode(obj,'IMG1',0).desc(5), QC.QPoint(0,0))
+        paint(qimg, obj.searchNode(obj,'IMG1',7).desc(5), QC.QPoint(0,0))
 
-    for i in range(imgnode.length):
-        data = imgnode.img[2*i] + imgnode.img[2*i+1] * 256
+    elif obj.type == 'BUIL':
+        paint(qimg, obj.searchNode(obj, 'IMG'), QC.QPoint(0,0))
+    elif obj.type == 'FACT':
+        paintobj(qimg, obj.searchNode(obj, 'BUIL'), size)
 
-        if status == 'blank': #if number of transparent cell
-            if imgnode.version == 3 and data == 0 and penpos.x() != imgnode.x:
+    elif obj.type in ['CCAR', 'PASS', 'VHCL', 'GOBJ', 'SIGN', 'TREE']:
+        paint(qimg, obj.searchNode(obj, 'IMG'), QC.QPoint(0,0))
+
+def paint(qimg, imgnode, origpos):
+
+    if hasattr(imgnode, 'img'):
+
+        status = 'blank'
+        penpos = QC.QPoint(
+            imgnode.x if imgnode.version > 2 else 0,
+            imgnode.y
+        ) + origpos
+
+        for i in range(imgnode.length):
+            data = imgnode.img[2*i] + imgnode.img[2*i+1] * 256
+
+            if status == 'blank': #if number of transparent cell
+                if data == 0 and penpos.x() != imgnode.x:
+                    penpos += QC.QPoint(0,1)
+                    if imgnode.version > 2:
+                        penpos.setX(imgnode.x + origpos.x())
+                    else:
+                        penpos.setX(origpos.x())
+                    status = 'blank'
+                else:
+                    penpos += QC.QPoint(data,0)
+                    status = 'colored'
+            elif status == 'colored': #if number of colored cell
+                if data == 0:
+                    status = 'newline'
+                else:
+                    status = data
+            elif status == 'newline':
                 penpos += QC.QPoint(0,1)
-                penpos.setX(imgnode.x)
+                penpos.setX(origpos.x())
                 status = 'blank'
             else:
-                penpos += QC.QPoint(data,0)
-                status = 'colored'
-        elif status == 'colored': #if number of colored cell
-            if data == 0:
-                status = 'newline'
-            else:
-                status = data
-        elif status == 'newline':
-            penpos += QC.QPoint(0,1)
-            penpos.setX(0)
-            status = 'blank'
-        else:
-            if data >= 0x8000: #if special color
-                color_index = data & 0x1F
-                color = QG.QColor(lib.special_color[color_index])
-            else:
-                colorR = (data >> 10) << 3
-                colorG = ((data >> 5) & 0x1F) << 3
-                colorB = (data & 0x1F) << 3
-                color = QG.QColor(colorR, colorG, colorB)
-            qimg.setPixelColor(penpos, color)
+                if data >= 0x8000: #if special color
+                    color_index = data & 0x1F
+                    color = QG.QColor(lib.special_color[color_index])
+                else:
+                    colorR = (data >> 10) << 3
+                    colorG = ((data >> 5) & 0x1F) << 3
+                    colorB = (data & 0x1F) << 3
+                    color = QG.QColor(colorR, colorG, colorB)
+                qimg.setPixelColor(penpos, color)
 
-            penpos += QC.QPoint(1,0)
-            status -= 1
-            if status == 0:
-                status = 'blank'
+                penpos += QC.QPoint(1,0)
+                status -= 1
+                if status == 0:
+                    status = 'blank'
+
+    return None

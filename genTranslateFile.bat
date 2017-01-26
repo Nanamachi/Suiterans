@@ -1,1 +1,1 @@
-pylupdate Qt\Suiterans.pro
+pylupdate5 Qt\Suiterans.pro
