@@ -21,7 +21,18 @@ def show_img(imgnode):
 
     app.exec_()
 
-def paintobj(qimg, obj, size):
+def paintobj(obj, size):
+
+    if obj.type == 'BUIL':
+        qimg = QG.QImage(
+            size + (obj.size_x + obj.size_y - 2) * size / 2,
+            size + (obj.size_x - 1 + obj.size_y - 1) * size / 4,
+            QG.QImage.Format_RGB555
+        )
+    else:
+        qimg = QG.QImage(size, size, QG.QImage.Format_RGB555)
+    bgcol = QG.QColor(123, 170, 57)
+    qimg.fill(bgcol)
 
     if   obj.type == 'CRSS':
         paint(qimg, obj.searchNode(obj,'IMG1',0).desc(0), QC.QPoint(0,0))
@@ -40,12 +51,21 @@ def paintobj(qimg, obj, size):
         paint(qimg, obj.searchNode(obj,'IMG1',7).desc(5), QC.QPoint(0,0))
 
     elif obj.type == 'BUIL':
-        paint(qimg, obj.searchNode(obj, 'IMG'), QC.QPoint(0,0))
+        for i in range(obj.size_y):
+            for j in range(obj.size_x):
+                tile = obj.searchNode(obj, 'TILE', i*obj.size_x + j)
+                origpos = QC.QPoint(
+                    size / 2 * (obj.size_y - i + j - 1),
+                    size / 4 * (i + j)
+                )
+                paint(qimg, tile.searchNode(tile, 'IMG'), origpos)
     elif obj.type == 'FACT':
-        paintobj(qimg, obj.searchNode(obj, 'BUIL'), size)
+        qimg = paintobj(obj.searchNode(obj, 'BUIL'), size)
 
     elif obj.type in ['CCAR', 'PASS', 'VHCL', 'GOBJ', 'SIGN', 'TREE']:
         paint(qimg, obj.searchNode(obj, 'IMG'), QC.QPoint(0,0))
+
+    return qimg
 
 def paint(qimg, imgnode, origpos):
 
@@ -61,7 +81,7 @@ def paint(qimg, imgnode, origpos):
             data = imgnode.img[2*i] + imgnode.img[2*i+1] * 256
 
             if status == 'blank': #if number of transparent cell
-                if data == 0 and penpos.x() != imgnode.x:
+                if data == 0 and penpos.x() != imgnode.x + origpos.x():
                     penpos += QC.QPoint(0,1)
                     if imgnode.version > 2:
                         penpos.setX(imgnode.x + origpos.x())
@@ -96,4 +116,4 @@ def paint(qimg, imgnode, origpos):
                 if status == 0:
                     status = 'blank'
 
-    return None
+    return qimg

@@ -71,6 +71,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
         self.label.setSizePolicy(sizePolicy)
         self.label.setMaximumSize(QtCore.QSize(256, 256))
+        self.label.setAlignment(QtCore.Qt.AlignCenter)
         self.label.setObjectName("label")
         self.gridLayout.addWidget(self.label, 4, 3, 3, 1)
         self.horizontalLayout_3.addLayout(self.gridLayout)

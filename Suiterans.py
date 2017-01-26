@@ -117,15 +117,11 @@ class Viewer():
 
         ui.pakinfo.setModel(obj_model)
 
-        imgsize = QC.QSize(self.paksuite.size, self.paksuite.size)
-        imgmap = QG.QImage(imgsize, QG.QImage.Format_RGB555)
-        bgcol = QG.QColor(123, 170, 57)
-        imgmap.fill(bgcol)
-
         if obj.type in lib.imaged_obj:
-            painter.paintobj(imgmap, obj, self.paksuite.size)
-
-        ui.label.setPixmap(QG.QPixmap.fromImage(imgmap))
+            imgmap = painter.paintobj(obj, self.paksuite.size)
+            ui.label.setPixmap(QG.QPixmap.fromImage(imgmap))
+        else:
+            ui.label.setText('NoImage')
 
     def select_folder(self):
         dialog = QW.QFileDialog()

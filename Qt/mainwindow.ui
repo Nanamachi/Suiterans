@@ -101,6 +101,9 @@
           <height>256</height>
          </size>
         </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
        </widget>
       </item>
      </layout>

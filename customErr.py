@@ -33,4 +33,13 @@ class NotPakSuiteError(Exception):
 
     def __repr__(self):
         return "NotPakSuiteError: "\
-        + dirname + "doesn't seem to be a Simutrans pak folder."
+        + dirname + " doesn't seem to be a Simutrans pak folder."
+
+class NodeNotFoundError(Exception):
+    def __init__(self, obj, typ):
+        self._obj = obj
+        self._typ = typ
+
+    def __repr__(self):
+        return "NodeNotFoundError: "\
+        + str(self._obj) + " doesn't have " + self._typ + 'Node.'
