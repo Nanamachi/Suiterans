@@ -40,16 +40,19 @@ def read_paksuites():
     paksuites = []
     configfs = glob.glob('conf/*.conf')
     for configfn in configfs:
-        configf = codecs.open(configfn, 'r', 'utf-8')
-        configs = json.load(configf, encoding = 'utf-8')
-        paksuites.append(PakSuite(configs['dir']))
-        configf.close()
+        paksuites.append(read_paksuite(configfn))
 
     return paksuites
 
+def read_paksuite(configfn):
+    configf = codecs.open(configfn, 'r', 'utf-8')
+    configs = json.load(configf, encoding = 'utf-8')
+    configf.close()
+    return PakSuite(configs['dir'])
+
 def write_paksuite(name, path, overwrite = False):
-    configfn = os.path.join('conf/', name + '.conf')
-    if (os.path.exist(configfn)) and not overwrite:
+    configfn = _op.join('conf/', name + '.conf')
+    if _op.exists(configfn) and not overwrite:
         raise FileExistsError(configfn)
     else:
         configf = codecs.open(configfn, 'w', 'utf-8')
@@ -58,6 +61,18 @@ def write_paksuite(name, path, overwrite = False):
             configf,
             ensure_ascii = False
         )
+        configf.close()
+    try:
+        ret = read_paksuite(configfn)
+    except NotPakSuiteError:
+        delete_paksuite(name)
+        raise NotPakSuiteError(name)
+
+    return ret
+
+def delete_paksuite(name):
+    configfn = _op.join('conf/', name + '.conf')
+    os.remove(configfn)
 
 if __name__ == '__main__':
     pass

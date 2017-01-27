@@ -11,6 +11,7 @@ import Qt.nodetree as nt
 import core
 import lib
 import painter
+from customErr import *
 
 _translate = QC.QCoreApplication.translate
 translator = QC.QTranslator()
@@ -33,24 +34,22 @@ def call_main():
 class Viewer():
 
     def __init__(self):
-        self.show_paksuiteList()
+        self.windows = []
 
-    def show_paksuiteList(self):
-
-        paksuites_model = QG.QStandardItemModel(0,1)
-        paksuites = core.read_paksuites()
-        for ps in paksuites:
-            Qtps = QG.QStandardItem()
-            Qtps.setText(ps.name + ' | ' + str(ps.amount) + ' pak files')
-            Qtps.setData(ps)
-            Qtps.setEditable(False)
-            paksuites_model.appendRow(Qtps)
-        ui.folderlist.setModel(paksuites_model)
+        self.paksuites_model = QG.QStandardItemModel(0,1)
+        for ps in core.read_paksuites():
+            self.append_paksuite(ps)
+        ui.folderlist.setModel(self.paksuites_model)
         ui.folderlist.doubleClicked.connect(self.show_paksuite)
 
         ui.actionAdd_Simutrans_pak_folder.triggered.connect(self.select_folder)
 
-        return len(paksuites)
+    def append_paksuite(self, ps):
+        Qtps = QG.QStandardItem()
+        Qtps.setText(ps.name + ' | ' + str(ps.amount) + ' pak files')
+        Qtps.setData(ps)
+        Qtps.setEditable(False)
+        self.paksuites_model.appendRow(Qtps)
 
     def show_paksuite(self,paksuiteIndex):
 
@@ -100,8 +99,6 @@ class Viewer():
         ui.paklist.setModel(paklists_model)
         ui.progressBar.setValue(0)
 
-        self.ntviewers = []
-
         ui.paklist.clicked.connect(self.show_obj)
         ui.paklist.doubleClicked.connect(self.spawn_ntviewer)
 
@@ -130,6 +127,7 @@ class Viewer():
     def select_folder(self):
         dialog = QW.QFileDialog()
         pakfolder = dialog.getExistingDirectory()
+        statusdiag = QW.QMessageBox()
 
         if pakfolder != '':
             name = os.path.basename(pakfolder)
@@ -142,13 +140,43 @@ class Viewer():
                 name
             )
             if isAdd:
-                core.write_paksuite(name, pakfolder)
-            self.show_paksuiteList()
+                try:
+                    newps = core.write_paksuite(name, pakfolder)
+                    self.append_paksuite(newps)
+                    statusdiag.setText(_translate(
+                        "InputDialog",
+                        'PakSuite was successfully added.'
+                    ))
+                except FileExistsError:
+                    statusdiag.setText(_translate(
+                        "InputDialog",
+                        "PakSuite '{}' already exists. Please use another name."\
+                        .format(name)
+                    ))
+                except NotPakSuiteError:
+                    statusdiag.setText(_translate(
+                        "InputDialog",
+                        "Folder {} is not Simutrans PakSuite Folder."\
+                        .format(name)
+                    ))
+            else:
+                statusdiag.setText(_translate(
+                    "InputDialog",
+                    "Adding PakSuite is cancelled"
+                ))
+        else:
+            statusdiag.setText(_translate(
+                "InputDialog",
+                "Adding PakSuite is cancelled"
+            ))
+
+        statusdiag.show()
+        self.windows.append(statusdiag)
 
         return None
 
     def spawn_ntviewer(self, objIndex):
-        self.ntviewers.append(NodeTreeViewer(objIndex))
+        self.windows.append(NodeTreeViewer(objIndex))
 
 class NodeTreeViewer():
     def __init__(self, objIndex):

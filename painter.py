@@ -48,7 +48,9 @@ def paintobj(obj, size):
         paint(qimg, obj.searchNode(obj,'IMG1',1).desc(5), QC.QPoint(0,0))
     elif obj.type == 'WAY' :
         paint(qimg, obj.searchNode(obj,'IMG1',0).desc(5), QC.QPoint(0,0))
-        paint(qimg, obj.searchNode(obj,'IMG1',7).desc(5), QC.QPoint(0,0))
+        frontimg = obj.searchNode(obj, 'IMG1',7)
+        if getattr(frontimg, 'type', '') == 'IMG1':
+            paint(qimg, frontimg.desc(5), QC.QPoint(0,0))
 
     elif obj.type == 'BUIL':
         for i in range(obj.size_y):
@@ -102,7 +104,10 @@ def paint(qimg, imgnode, origpos):
                     status = data
             elif status == 'newline':
                 penpos += QC.QPoint(0,1)
-                penpos.setX(origpos.x())
+                if imgnode.version > 2:
+                    penpos.setX(imgnode.x + origpos.x())
+                else:
+                    penpos.setX(origpos.x())
                 status = 'blank'
             else:
                 if data >= 0x8000: #if special color
