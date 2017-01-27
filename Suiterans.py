@@ -150,15 +150,13 @@ class Viewer():
                 except FileExistsError:
                     statusdiag.setText(_translate(
                         "InputDialog",
-                        "PakSuite '{}' already exists. Please use another name."\
-                        .format(name)
-                    ))
+                        "PakSuite '{}' already exists. Please use another name."
+                    ).format(name))
                 except NotPakSuiteError:
                     statusdiag.setText(_translate(
                         "InputDialog",
-                        "Folder {} is not Simutrans PakSuite Folder."\
-                        .format(name)
-                    ))
+                        "Folder {} is not Simutrans PakSuite Folder."
+                    ).format(name))
             else:
                 statusdiag.setText(_translate(
                     "InputDialog",
