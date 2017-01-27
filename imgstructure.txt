@@ -1,0 +1,341 @@
+#BRDG
+
+<Simutrans BRDG>                obj
+0 <Simutrans TEXT>              name
+1 <Simutrans TEXT>              author
+2 <Simutrans IMG1 Node>         backIMG:Normal
+2 0 <Simutrans IMG Node>        NS
+2 1 <Simutrans IMG Node>        EW
+2 2 <Simutrans IMG Node>        S
+2 3 <Simutrans IMG Node>        N
+2 4 <Simutrans IMG Node>        W
+2 5 <Simutrans IMG Node>        E
+2 6 <Simutrans IMG Node>        slopeS
+2 7 <Simutrans IMG Node>        slopeN
+2 8 <Simutrans IMG Node>        slopeW
+2 9 <Simutrans IMG Node>        slopeE
+3 <Simutrans IMG1 Node>         frontIMG
+3 0 <Simutrans IMG Node>        (same for 2)
+3 1 <Simutrans IMG Node>
+3 2 <Simutrans IMG Node>
+3 3 <Simutrans IMG Node>
+3 4 <Simutrans IMG Node>
+3 5 <Simutrans IMG Node>
+3 6 <Simutrans IMG Node>
+3 7 <Simutrans IMG Node>
+3 8 <Simutrans IMG Node>
+3 9 <Simutrans IMG Node>
+4 <Simutrans CURS Node>         CURS
+4 0 <Simutrans TEXT>            name
+4 1 <Simutrans TEXT>            author
+4 2 <Simutrans IMG1 Node>       cursor
+4 2 0 <Simutrans IMG Node>      cursorIMG
+4 2 1 <Simutrans IMG Node>      icon
+5 <Simutrans IMG1 Node>         backIMG:snowy
+5 0 <Simutrans IMG Node>
+5 1 <Simutrans IMG Node>
+5 2 <Simutrans IMG Node>
+5 3 <Simutrans IMG Node>
+5 4 <Simutrans IMG Node>
+5 5 <Simutrans IMG Node>
+5 6 <Simutrans IMG Node>
+5 7 <Simutrans IMG Node>
+5 8 <Simutrans IMG Node>
+5 9 <Simutrans IMG Node>
+6 <Simutrans IMG1 Node>         frontIMG:snowy
+6 0 <Simutrans IMG Node>
+6 1 <Simutrans IMG Node>
+6 2 <Simutrans IMG Node>
+6 3 <Simutrans IMG Node>
+6 4 <Simutrans IMG Node>
+6 5 <Simutrans IMG Node>
+6 6 <Simutrans IMG Node>
+6 7 <Simutrans IMG Node>
+6 8 <Simutrans IMG Node>
+6 9 <Simutrans IMG Node>
+| └ direction
+└-- front-back & season
+
+#BUIL
+
+<Simutrans BUIL>                obj
+0 <Simutrans TEXT>              name
+1 <Simutrans TEXT>              author
+2 <Simutrans TILE Node>         TILE(0,0)[NW]
+2 0 <Simutrans IMG2 Node>
+2 0 0 <Simutrans IMG1 Node>
+2 0 0 0 <Simutrans IMG Node>    normal, height=0
+2 0 1 <Simutrans IMG1 Node>
+2 0 1 0 <Simutrans IMG Node>    normal, height=1
+2 1 <Simutrans IMG2 Node>
+2 2 <Simutrans IMG2 Node>
+2 2 0 <Simutrans IMG1 Node>
+2 2 0 0 <Simutrans IMG Node>    snowy, height=0
+2 2 1 <Simutrans IMG1 Node>
+2 2 1 0 <Simutrans IMG Node>    snowy, height=1
+2 3 <Simutrans IMG2 Node>
+3 <Simutrans TILE Node>         TILE(1,0)[NE]
+3 0 <Simutrans IMG2 Node>
+3 0 0 <Simutrans IMG1 Node>
+3 0 0 0 <Simutrans IMG Node>    normal, height=0
+3 1 <Simutrans IMG2 Node>
+3 2 <Simutrans IMG2 Node>
+3 2 0 <Simutrans IMG1 Node>
+3 2 0 0 <Simutrans IMG Node>    snowy, height=0
+3 3 <Simutrans IMG2 Node>
+4 <Simutrans TILE Node>         TILE(0,1)[SW]
+4 0 <Simutrans IMG2 Node>
+4 0 0 <Simutrans IMG1 Node>
+4 0 0 0 <Simutrans IMG Node>    normal, height=0
+4 1 <Simutrans IMG2 Node>
+4 2 <Simutrans IMG2 Node>
+4 2 0 <Simutrans IMG1 Node>
+4 2 0 0 <Simutrans IMG Node>    snowy, height=0
+4 3 <Simutrans IMG2 Node>
+5 <Simutrans TILE Node>
+5 0 <Simutrans IMG2 Node>
+5 0 0 <Simutrans IMG1 Node>
+5 0 0 0 <Simutrans IMG Node>    normal, height=0
+5 1 <Simutrans IMG2 Node>
+5 2 <Simutrans IMG2 Node>
+5 2 0 <Simutrans IMG1 Node>
+5 2 0 0 <Simutrans IMG Node>    snowy, height0
+5 3 <Simutrans IMG2 Node>
+| | | └ animation
+| | └-- height
+| └---- season/back-front
+└------ position/direction
+
+#CRSS
+
+<Simutrans CRSS: rail-road-crossing_new>
+0 <Simutrans TEXT: rail-road-crossing_new>
+1 <Simutrans TEXT: Raven/Hajo/prissi>
+2 <Simutrans IMG1 Node>
+2 0 <Simutrans IMG Node>        NSback,open
+3 <Simutrans IMG1 Node>
+3 0 <Simutrans IMG Node>        EWback,open
+4 <Simutrans IMG1 Node>
+4 0 <Simutrans IMG Node>        NSfront,open
+5 <Simutrans IMG1 Node>
+5 0 <Simutrans IMG Node>        EWfront,open
+6 <Simutrans IMG1 Node>
+6 0 <Simutrans IMG Node>        NSback,close
+7 <Simutrans IMG1 Node>
+7 0 <Simutrans IMG Node>        EWback,close
+8 <Simutrans IMG1 Node>
+8 0 <Simutrans IMG Node>        NSfront,close
+9 <Simutrans IMG1 Node>
+9 0 <Simutrans IMG Node>        EWfront,close
+
+#FACT
+
+<Simutrans FACT>
+0 <Simutrans BUIL>              BUILnode---see above
+0 0 <Simutrans TEXT>
+0 1 <Simutrans TEXT>
+0 2 <Simutrans TILE Node>
+0 2 0 <Simutrans IMG2 Node>
+0 2 0 0 <Simutrans IMG1 Node>
+0 2 0 0 0 <Simutrans IMG Node>
+0 2 0 1 <Simutrans IMG1 Node>
+0 2 0 1 0 <Simutrans IMG Node>
+0 2 1 <Simutrans IMG2 Node>
+0 2 2 <Simutrans IMG2 Node>
+0 2 2 0 <Simutrans IMG1 Node>
+0 2 2 0 0 <Simutrans IMG Node>
+0 2 2 1 <Simutrans IMG1 Node>
+0 2 2 1 0 <Simutrans IMG Node>
+0 2 3 <Simutrans IMG2 Node>
+0 3 <Simutrans TILE Node>
+0 3 0 <Simutrans IMG2 Node>
+0 3 0 0 <Simutrans IMG1 Node>
+0 3 0 0 0 <Simutrans IMG Node>
+0 3 1 <Simutrans IMG2 Node>
+0 3 2 <Simutrans IMG2 Node>
+0 3 2 0 <Simutrans IMG1 Node>
+0 3 2 0 0 <Simutrans IMG Node>
+0 3 3 <Simutrans IMG2 Node>
+0 4 <Simutrans TILE Node>
+0 4 0 <Simutrans IMG2 Node>
+0 4 0 0 <Simutrans IMG1 Node>
+0 4 0 0 0 <Simutrans IMG Node>
+0 4 1 <Simutrans IMG2 Node>
+0 4 2 <Simutrans IMG2 Node>
+0 4 2 0 <Simutrans IMG1 Node>
+0 4 2 0 0 <Simutrans IMG Node>
+0 4 3 <Simutrans IMG2 Node>
+0 5 <Simutrans TILE Node>
+0 5 0 <Simutrans IMG2 Node>
+0 5 0 0 <Simutrans IMG1 Node>
+0 5 0 0 0 <Simutrans IMG Node>
+0 5 1 <Simutrans IMG2 Node>
+0 5 2 <Simutrans IMG2 Node>
+0 5 2 0 <Simutrans IMG1 Node>
+0 5 2 0 0 <Simutrans IMG Node>
+0 5 3 <Simutrans IMG2 Node>
+1 <Simutrans FSMO Node>
+1 0 <Simutrans XREF>
+2 <Simutrans FPRO Node>
+2 0 <Simutrans XREF>
+
+#SIGN
+
+0 <Simutrans TEXT: Roadgate>        name
+1 <Simutrans TEXT: prissi>          author
+2 <Simutrans IMG1 Node>
+2 0 <Simutrans IMG Node>            gate:NSclose signal:Nstop else:N
+2 1 <Simutrans IMG Node>            gate:EWclose signal:Sstop else:S
+2 2 <Simutrans IMG Node>            gate:NSopen  signal:Wstop else:W
+2 3 <Simutrans IMG Node>            gate:EWopen  signal:Estop else:E
+3 <Simutrans CURS Node>             CURS
+3 0 <Simutrans TEXT: Roadgate>      name
+3 1 <Simutrans TEXT: prissi>        author
+3 2 <Simutrans IMG1 Node>
+3 2 0 <Simutrans IMG Node>          cursor
+3 2 1 <Simutrans IMG Node>          icon
+
+#SMOK
+
+<Simutrans SMOK Node>
+0 <Simutrans TEXT: Industry_Smoke>
+1 <Simutrans TEXT: >
+2 <Simutrans IMG1 Node>
+2 0 <Simutrans IMG Node>
+
+#TUNL --- see also BRDG node
+
+<Simutrans TUNL: RailTunnel>            obj
+0 <Simutrans TEXT: RailTunnel>          name
+1 <Simutrans TEXT: Timothy Baldock>     author
+2 <Simutrans IMG1 Node>                 backIMG:normal
+2 0 <Simutrans IMG Node>                N
+2 1 <Simutrans IMG Node>                S
+2 2 <Simutrans IMG Node>                W
+2 3 <Simutrans IMG Node>                E
+3 <Simutrans IMG1 Node>                 frontIMG:normal
+3 0 <Simutrans IMG Node>
+3 1 <Simutrans IMG Node>
+3 2 <Simutrans IMG Node>
+3 3 <Simutrans IMG Node>
+4 <Simutrans CURS Node>
+4 0 <Simutrans TEXT: RailTunnel>
+4 1 <Simutrans TEXT: Timothy Baldock>
+4 2 <Simutrans IMG1 Node>
+4 2 0 <Simutrans IMG Node>
+4 2 1 <Simutrans IMG Node>
+5 <Simutrans IMG1 Node>                 backIMG:snowy
+5 0 <Simutrans IMG Node>
+5 1 <Simutrans IMG Node>
+5 2 <Simutrans IMG Node>
+5 3 <Simutrans IMG Node>
+6 <Simutrans IMG1 Node>                 frontIMG:snowy
+6 0 <Simutrans IMG Node>
+6 1 <Simutrans IMG Node>
+6 2 <Simutrans IMG Node>
+6 3 <Simutrans IMG Node>
+7 <Simutrans XREF: WAY concrete_slee>   interior design
+
+#VHCL
+
+<Simutrans VHCL: Autotrailer>
+0 <Simutrans TEXT: Autotrailer>
+1 <Simutrans TEXT: MHz>
+2 <Simutrans XREF: GOODAutos >
+3 <Simutrans XREF: SMOK  >
+4 <Simutrans IMG1 Node>                 empty
+4 0 <Simutrans IMG Node>                (heading)S
+4 1 <Simutrans IMG Node>                W
+4 2 <Simutrans IMG Node>                SW
+4 3 <Simutrans IMG Node>                SE
+4 4 <Simutrans IMG Node>                N
+4 5 <Simutrans IMG Node>                E
+4 6 <Simutrans IMG Node>                NE
+4 7 <Simutrans IMG Node>                NW
+5 <Simutrans IMG1 Node>                 GOOD1
+5 0 <Simutrans IMG Node>
+5 1 <Simutrans IMG Node>
+5 2 <Simutrans IMG Node>
+5 3 <Simutrans IMG Node>
+5 4 <Simutrans IMG Node>
+5 5 <Simutrans IMG Node>
+5 6 <Simutrans IMG Node>
+5 7 <Simutrans IMG Node>
+
+--------if there are different img for each goods--------
+5 <Simutrans IMG2 Node>
+5 0 <Simutrans IMG1 Node>               (heading)S
+5 0 0 <Simutrans IMG Node>              GOOD0
+5 0 1 <Simutrans IMG Node>              GOOD1
+5 0 2 <Simutrans IMG Node>              GOOD2
+5 0 3 <Simutrans IMG Node>              GOOD3
+|
+5 7 <Simutrans IMG1 Node>               NW
+5 7 0 <Simutrans IMG Node>              GOOD0
+5 7 1 <Simutrans IMG Node>              GOOD1
+5 7 2 <Simutrans IMG Node>              GOOD2
+5 7 3 <Simutrans IMG Node>              GOOD3
+
+6 <Simutrans XREF: VHCL VolvoFH12 >
+7 <Simutrans XREF: VHCL RenaultTH5 >
+8 <Simutrans XREF: VHCL Mack_Truck_01 >
+9 <Simutrans XREF: VHCL HJMAvia >
+10 <Simutrans XREF: VHCL FordZugmaschine >
+
+#WAY
+
+<Simutrans WAY: asphalt_road>
+0 <Simutrans TEXT: asphalt_road>
+1 <Simutrans TEXT: >
+2 <Simutrans IMG1 Node>
+2 0 <Simutrans IMG Node>                Nope
+2 1 <Simutrans IMG Node>                N
+2 2 <Simutrans IMG Node>                E
+2 3 <Simutrans IMG Node>                NE
+2 4 <Simutrans IMG Node>                S
+2 5 <Simutrans IMG Node>                NS
+2 6 <Simutrans IMG Node>                SE
+2 7 <Simutrans IMG Node>                NSE
+2 8 <Simutrans IMG Node>                W
+2 9 <Simutrans IMG Node>                NW
+2 10 <Simutrans IMG Node>               EW
+2 11 <Simutrans IMG Node>               NEW
+2 12 <Simutrans IMG Node>               SW
+2 13 <Simutrans IMG Node>               NSW
+2 14 <Simutrans IMG Node>               SEW
+2 15 <Simutrans IMG Node>               NSEW
+
+--------optional: point direction diff--------
+2 16 <Simutrans IMG Node>               N-SE
+2 17 <Simutrans IMG Node>               E-NW
+2 18 <Simutrans IMG Node>               S-NW
+2 19 <Simutrans IMG Node>               W-SE
+2 20 <Simutrans IMG Node>               (W-S)x(N-E)
+2 21 <Simutrans IMG Node>               S-NE
+2 22 <Simutrans IMG Node>               W-NE
+2 23 <Simutrans IMG Node>               N-SW
+2 24 <Simutrans IMG Node>               E-SW
+2 25 <Simutrans IMG Node>               (W-N)x(S-E)
+
+3 <Simutrans IMG1 Node>                 slope
+3 0 <Simutrans IMG Node>                (low)N
+3 1 <Simutrans IMG Node>                W
+3 2 <Simutrans IMG Node>                E
+3 3 <Simutrans IMG Node>                S
+4 <Simutrans IMG1 Node>                 diagonal_straight
+4 0 <Simutrans IMG Node>                NE
+4 1 <Simutrans IMG Node>                SE
+4 2 <Simutrans IMG Node>                NW
+4 3 <Simutrans IMG Node>                SW
+5 <Simutrans CURS Node>
+5 0 <Simutrans TEXT: asphalt_road>
+5 1 <Simutrans TEXT: >
+5 2 <Simutrans IMG1 Node>
+5 2 0 <Simutrans IMG Node>
+5 2 1 <Simutrans IMG Node>
+
+6: snowy
+7: snowy slope
+8: snowy diagonal
+9-11: normal front
+12-14: snowy front

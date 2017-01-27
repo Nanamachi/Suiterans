@@ -16,16 +16,10 @@ class PakFile(): #read .pak and extract into PakNode instance
         self.path = path
         self.name = os.path.basename(path)
         while True:
-            if _fp.read(1) != b'R':
-                continue
-            elif _fp.read(1) != b'O':
-                _fp.seek(-1,1)
-                continue
-            elif _fp.read(1) != b'O':
-                _fp.seek(-1,1)
-                continue
-            elif _fp.read(1) == b'T':
+            if _fp.read(4) == b'ROOT':
                 break
+            else:
+                _fp.seek(-3,1)
 
         _fp.seek(-4, 1) #back 4chars from here
         self.root = ROOTNode(_fp)
@@ -52,6 +46,7 @@ class PakNode():
 
             self.child.append(child_class(fp))
 
+        #set name and author from child TEXTNode
         if self.type in lib.named_obj:
             for c in self.child:
                 if type(c) == CURSNode:
@@ -77,6 +72,10 @@ class PakNode():
     def __repr__(self):
         if hasattr(self, 'name'):
             return "<Simutrans {0}: {1}>".format(self.type, self.name)
+        elif hasattr(self, 'text'):
+            return "<Simutrans {0}: {1}>".format(self.type, self.text)
+        elif hasattr(self, 'xref'):
+            return "<Simutrans {0}: {1}>".format(self.type, self.xref)
         else:
             return "<Simutrans {} Node>".format(self.type)
 
@@ -189,6 +188,42 @@ class PakNode():
 
         return None
 
+    def show_tree(self, *number):
+        for n in number:
+            print(n, end = ' ')
+        print(self)
+        for i,c in enumerate(self.child):
+            c.show_tree(*number, i)
+
+        return None
+
+    def desc(self, *number):
+        if len(number) == 0:
+            return self
+        else:
+            try:
+                ret = self.child[number[0]].desc(*number[1:])
+            except IndexError:
+                ret = None
+            return ret
+
+    def searchNode(self, obj, typ, pos = 0):
+        for c in obj.child:
+            if c.type == typ and pos == 0:
+                ret = c
+                break
+            elif c.type == typ:
+                pos -= 1
+            elif c.child_count != 0:
+                pos = self.searchNode(c, typ, pos)
+                if type(pos) != int:
+                    ret = pos
+                    break
+        else:
+            ret = pos
+
+        return ret
+
 class BRDGNode(PakNode):
     def read_data(self, fp):
         super().read_data(fp)
@@ -271,9 +306,6 @@ class IMGNode(PakNode):
 
         if self.version == 3:
             self.length = int(self.data_len / 2)
-        elif self.version == 0:
-            fp.seek(1,1)
-            self.data_len -= 1
 
         self.img = fp.read(self.length * 2)
         self.data_len -= self.length * 2
@@ -308,7 +340,7 @@ class IMG2Node(PakNode):
 
         if self.data_len != 0:
             raise StreamTooLongError(self.data_len, self.version)
-            
+
 class MENUNode(PakNode):
     def read_data(self, fp):
         pass

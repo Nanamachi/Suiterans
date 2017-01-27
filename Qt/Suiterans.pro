@@ -11,10 +11,14 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = Suiterans
 TEMPLATE = app
 
-
-SOURCES += ../Suiterans.py
+lupdate_only{
+SOURCES +=\
+    ../Suiterans.py\
+    ../lib.py
+}
 HEADERS  +=
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    nodetree.ui
 
 TRANSLATIONS += Suiterans_ja.ts
 
