@@ -17,7 +17,8 @@ SOURCES +=\
     ../lib.py
 }
 HEADERS  +=
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    nodetree.ui
 
 TRANSLATIONS += Suiterans_ja.ts
 

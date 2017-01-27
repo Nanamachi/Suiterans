@@ -210,19 +210,19 @@ class PakNode():
     def searchNode(self, obj, typ, pos = 0):
         for c in obj.child:
             if c.type == typ and pos == 0:
+                ret = c
                 break
             elif c.type == typ:
                 pos -= 1
             elif c.child_count != 0:
-                try:
-                    c = self.searchNode(c, typ)
+                pos = self.searchNode(c, typ, pos)
+                if type(pos) != int:
+                    ret = pos
                     break
-                except NodeNotFoundError:
-                    pass
         else:
-            raise NodeNotFoundError(self, typ)
+            ret = pos
 
-        return c
+        return ret
 
 class BRDGNode(PakNode):
     def read_data(self, fp):

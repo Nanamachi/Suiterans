@@ -58,11 +58,15 @@ def paintobj(obj, size):
                     size / 2 * (obj.size_y - i + j - 1),
                     size / 4 * (i + j)
                 )
-                paint(qimg, tile.searchNode(tile, 'IMG'), origpos)
+                paint(qimg, tile.desc(0,0,0), origpos)
+                if obj.u_type in [33,34]:
+                    paint(qimg, tile.desc(1,0,0), origpos)
     elif obj.type == 'FACT':
         qimg = paintobj(obj.searchNode(obj, 'BUIL'), size)
 
-    elif obj.type in ['CCAR', 'PASS', 'VHCL', 'GOBJ', 'SIGN', 'TREE']:
+    elif obj.type == 'IMG':
+        qimg = paint(qimg, obj, QC.QPoint(0,0))
+    else:
         paint(qimg, obj.searchNode(obj, 'IMG'), QC.QPoint(0,0))
 
     return qimg

@@ -7,6 +7,7 @@ import PyQt5.QtCore as QC
 import PyQt5.QtGui as QG
 
 import Qt.mainwindow as wi
+import Qt.nodetree as nt
 import core
 import lib
 import painter
@@ -99,7 +100,10 @@ class Viewer():
         ui.paklist.setModel(paklists_model)
         ui.progressBar.setValue(0)
 
+        self.ntviewers = []
+
         ui.paklist.clicked.connect(self.show_obj)
+        ui.paklist.doubleClicked.connect(self.spawn_ntviewer)
 
     def show_obj(self,objIndex):
         obj = objIndex.model().item(objIndex.row()).data()
@@ -142,5 +146,46 @@ class Viewer():
             self.show_paksuiteList()
 
         return None
+
+    def spawn_ntviewer(self, objIndex):
+        self.ntviewers.append(NodeTreeViewer(objIndex))
+
+class NodeTreeViewer():
+    def __init__(self, objIndex):
+
+        def make_tree(obj):
+            ret = QG.QStandardItem()
+            ret.setText(obj.type)
+            ret.setData(obj)
+            ret.setEditable(False)
+            for c in obj.child:
+                ret.appendRow(make_tree(c))
+            return ret
+
+        obj = objIndex.model().item(objIndex.row()).data()
+        model = QG.QStandardItemModel()
+        model.appendRow(make_tree(obj))
+
+        self.dialog = QW.QDialog()
+        self.ntview = nt.Ui_Dialog()
+        self.ntview.setupUi(self.dialog)
+        self.ntview.treeView.setModel(model)
+        self.dialog.setSizePolicy(QW.QSizePolicy(
+            QW.QSizePolicy.Preferred,
+            QW.QSizePolicy.Preferred
+        ))
+
+        self.ntview.treeView.clicked.connect(self.show_node)
+        self.dialog.show()
+
+    def show_node(self, objIndex):
+        obj = objIndex.model().itemFromIndex(objIndex).data()
+        if getattr(obj, 'type') == 'IMG':
+            imgmap = painter.paintobj(obj,128)
+            self.ntview.label.setPixmap(QG.QPixmap.fromImage(imgmap))
+        elif getattr(obj, 'type') == 'TEXT':
+            self.ntview.label.setText(obj.text)
+        elif getattr(obj, 'type') == 'XREF':
+            self.ntview.label.setText(obj.xref)
 
 call_main()

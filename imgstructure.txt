@@ -103,8 +103,8 @@
 5 3 <Simutrans IMG2 Node>
 | | | └ animation
 | | └-- height
-| └---- season
-└------ position
+| └---- season/back-front
+└------ position/direction
 
 #CRSS
 
