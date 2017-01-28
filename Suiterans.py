@@ -25,6 +25,7 @@ ui.setupUi(window)
 def call_main():
 
     ui.actionExit.triggered.connect(app.quit)
+    logger.debug('--------Suiterans: Simutrans pak manager--------')
 
     vwr = Viewer()
 
@@ -120,9 +121,9 @@ class Viewer():
 
         if obj.type in lib.imaged_obj:
             imgmap = painter.paintobj(obj, self.paksuite.size)
-            ui.label.setPixmap(QG.QPixmap.fromImage(imgmap))
+            ui.ImgViewer.setPixmap(QG.QPixmap.fromImage(imgmap))
         else:
-            ui.label.setText('NoImage')
+            ui.ImgViewer.setText('NoImage')
 
     def select_folder(self):
         dialog = QW.QFileDialog()
@@ -158,6 +159,7 @@ class Viewer():
                 self.append_paksuite(newps)
                 status = 'success'
             except FileExistsError:
+                logger.info('PakSuite name duplicates.')
                 a = statusdiag.question(
                     statusdiag,
                     _translate('InputDialog', 'PakSuite already exists'),
@@ -180,6 +182,7 @@ class Viewer():
                     status = 'cancel'
 
             except NotPakSuiteError:
+                logger.info('Selected folder is not a PakSuite folder.')
                 status = 'NotPS'
         else:
             status = 'cancel'
@@ -222,25 +225,33 @@ class NodeTreeViewer():
         model.appendRow(make_tree(obj))
 
         self.dialog = QW.QDialog()
-        self.ntview = nt.Ui_Dialog()
+        self.ntview = nt.Ui_TreeView()
         self.ntview.setupUi(self.dialog)
-        self.ntview.treeView.setModel(model)
+        self.ntview.TreeViewer.setModel(model)
         self.dialog.setSizePolicy(QW.QSizePolicy(
             QW.QSizePolicy.Preferred,
             QW.QSizePolicy.Preferred
         ))
 
-        self.ntview.treeView.clicked.connect(self.show_node)
+        self.ntview.TreeViewer.clicked.connect(self.show_node)
         self.dialog.show()
 
     def show_node(self, objIndex):
         obj = objIndex.model().itemFromIndex(objIndex).data()
         if getattr(obj, 'type') == 'IMG':
             imgmap = painter.paintobj(obj,128)
-            self.ntview.label.setPixmap(QG.QPixmap.fromImage(imgmap))
+            self.ntview.Interpreter.setPixmap(QG.QPixmap.fromImage(imgmap))
         elif getattr(obj, 'type') == 'TEXT':
-            self.ntview.label.setText(obj.text)
+            self.ntview.Interpreter.setText(obj.text)
         elif getattr(obj, 'type') == 'XREF':
-            self.ntview.label.setText(obj.xref)
+            self.ntview.Interpreter.setText(obj.xref)
 
-call_main()
+try:
+    call_main()
+
+except Exception as e:
+    logger.critical(
+        "Unexpected error occured. Program Stop...\n{}: {}"
+        .format(type(e), e.args)
+    )
+    raise

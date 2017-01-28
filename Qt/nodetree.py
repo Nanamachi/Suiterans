@@ -8,30 +8,36 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-class Ui_Dialog(object):
-    def setupUi(self, Dialog):
-        Dialog.setObjectName("Dialog")
-        Dialog.resize(504, 338)
-        self.horizontalLayoutWidget = QtWidgets.QWidget(Dialog)
-        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(0, 0, 501, 331))
+class Ui_TreeView(object):
+    def setupUi(self, TreeView):
+        TreeView.setObjectName("TreeView")
+        TreeView.resize(504, 338)
+        self.horizontalLayoutWidget = QtWidgets.QWidget(TreeView)
+        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(0, 0, 501, 337))
         self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget)
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.treeView = QtWidgets.QTreeView(self.horizontalLayoutWidget)
-        self.treeView.setObjectName("treeView")
-        self.horizontalLayout.addWidget(self.treeView)
-        self.label = QtWidgets.QLabel(self.horizontalLayoutWidget)
-        self.label.setMinimumSize(QtCore.QSize(128, 128))
-        self.label.setText("")
-        self.label.setAlignment(QtCore.Qt.AlignCenter)
-        self.label.setObjectName("label")
-        self.horizontalLayout.addWidget(self.label)
+        self.gridLayout = QtWidgets.QGridLayout()
+        self.gridLayout.setObjectName("gridLayout")
+        self.Interpreter = QtWidgets.QLabel(self.horizontalLayoutWidget)
+        self.Interpreter.setMinimumSize(QtCore.QSize(128, 128))
+        self.Interpreter.setText("")
+        self.Interpreter.setAlignment(QtCore.Qt.AlignCenter)
+        self.Interpreter.setObjectName("Interpreter")
+        self.gridLayout.addWidget(self.Interpreter, 1, 1, 1, 1)
+        self.BinaryBrowser = QtWidgets.QTextBrowser(self.horizontalLayoutWidget)
+        self.BinaryBrowser.setObjectName("BinaryBrowser")
+        self.gridLayout.addWidget(self.BinaryBrowser, 0, 1, 1, 1)
+        self.TreeViewer = QtWidgets.QTreeView(self.horizontalLayoutWidget)
+        self.TreeViewer.setObjectName("TreeViewer")
+        self.gridLayout.addWidget(self.TreeViewer, 0, 0, 2, 1)
+        self.horizontalLayout.addLayout(self.gridLayout)
 
-        self.retranslateUi(Dialog)
-        QtCore.QMetaObject.connectSlotsByName(Dialog)
+        self.retranslateUi(TreeView)
+        QtCore.QMetaObject.connectSlotsByName(TreeView)
 
-    def retranslateUi(self, Dialog):
+    def retranslateUi(self, TreeView):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        TreeView.setWindowTitle(_translate("TreeView", "Dialog"))
 
