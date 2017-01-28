@@ -8,6 +8,7 @@ import PyQt5.QtWidgets as QW
 
 import lib
 from customErr import *
+from loginit import *
 
 class PakFile(): #read .pak and extract into PakNode instance
     def __init__(self, path):
@@ -22,7 +23,16 @@ class PakFile(): #read .pak and extract into PakNode instance
                 _fp.seek(-3,1)
 
         _fp.seek(-4, 1) #back 4chars from here
-        self.root = ROOTNode(_fp)
+
+        try:
+            self.root = ROOTNode(_fp)
+        except StreamTooLongError:
+            logger.error(
+                'StreamTooLongError has occured reading %s',
+                self.name
+            )
+            raise
+
         _fp.close()
 
     def __repr__ (self):
@@ -33,7 +43,14 @@ class PakNode():
         [self.type, self.child_count, self.data_len,] \
             = self.read_header(fp)
 
-        self.read_data(fp)
+        try:
+            self.read_data(fp)
+        except StreamTooLongError:
+            logger.error(
+                'StreamTooLongError: %s is too long to read.',
+                self.__repr__()
+            )
+            raise
 
         self.child = []
         for i in range(self.child_count):
@@ -44,7 +61,14 @@ class PakNode():
             child_class = globals()[child_type + 'Node']
             fp.seek(-4, 1) #back 4chars from here
 
-            self.child.append(child_class(fp))
+            try:
+                self.child.append(child_class(fp))
+            except StreamTooLongError:
+                logger.error(
+                    'Above Node is child of %s',
+                    self.__repr__()
+                )
+                raise
 
         #set name and author from child TEXTNode
         if self.type in lib.named_obj:
@@ -205,6 +229,7 @@ class PakNode():
                 ret = self.child[number[0]].desc(*number[1:])
             except IndexError:
                 ret = None
+                logger.info("%s has no desc %s", self.__repr__(), number)
             return ret
 
     def searchNode(self, obj, typ, pos = 0):
