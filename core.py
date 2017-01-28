@@ -12,16 +12,25 @@ _op = os.path
 
 class PakSuite():
 
-    def __init__(self, path):
+    def __init__(self, path, name, singleuser):
         self.path_main = path
-        self.path_root, self.name = _op.split(path)
-        self.path_addon = _op.join(self.path_root, 'addons', self.name)
-        self.amount = self.get_amount()
-        outsidepath = _op.join(self.path_main,'ground.Outside.pak')
-        if _op.isfile(outsidepath):
-            self.size = read_pak.PakFile(outsidepath).root.desc(0,2,0,0).width
+        self.path_root, self.dirname = _op.split(path)
+        self.name = name
+        if singleuser:
+            self.path_addon = _op.join(
+                self.path_root, 'addons', self.dirname
+            )
         else:
-            raise NotPakSuiteError(self.name)
+            self.path_addon = _op.join(
+                _op.expanduser('~'),
+                'Documents',
+                'Simutrans',
+                'addons',
+                self.dirname
+            )
+            print(self.path_addon)
+        self.amount = self.get_amount()
+        self.size = check_paksuite(self.path_main)
 
     def get_amount(self):
         amount \
@@ -47,32 +56,54 @@ def read_paksuites():
 def read_paksuite(configfn):
     configf = codecs.open(configfn, 'r', 'utf-8')
     configs = json.load(configf, encoding = 'utf-8')
+    print(configs)
     configf.close()
-    return PakSuite(configs['dir'])
+    if not 'singleuser' in configs:
+        write_paksuite(configs['name'], configs['dir'], True)
+        configs['singleuser'] = True
+    return PakSuite(configs['dir'], configs['name'], configs['singleuser'])
 
 def write_paksuite(name, path, overwrite = False):
     configfn = _op.join('conf/', name + '.conf')
     if _op.exists(configfn) and not overwrite:
         raise FileExistsError(configfn)
     else:
+        path_root, dirname = _op.split(path)
+
+        check_paksuite(path)
+
+        simuconffn = _op.join(path_root, 'config/simuconf.tab')
+        simuconff = open(simuconffn)
+        for l in simuconff.readlines():
+            if l.startswith('singleuser_install'):
+                singleuser = bool(l.split('=')[1])
+                break
+        else:
+            singleuser = False
+        simuconff.close()
+
         configf = codecs.open(configfn, 'w', 'utf-8')
         json.dump(
-            {'dir':path, 'name':name},
+            {'dir':path, 'name':name, 'singleuser':singleuser},
             configf,
             ensure_ascii = False
         )
         configf.close()
-    try:
-        ret = read_paksuite(configfn)
-    except NotPakSuiteError:
-        delete_paksuite(name)
-        raise NotPakSuiteError(name)
 
-    return ret
+    return read_paksuite(configfn)
 
 def delete_paksuite(name):
     configfn = _op.join('conf/', name + '.conf')
     os.remove(configfn)
+
+def check_paksuite(path):
+    outsidepath = _op.join(path,'ground.Outside.pak')
+    if _op.isfile(outsidepath):
+        size = read_pak.PakFile(outsidepath).root.desc(0,2,0,0).width
+    else:
+        raise NotPakSuiteError(path)
+
+    return size
 
 if __name__ == '__main__':
     pass

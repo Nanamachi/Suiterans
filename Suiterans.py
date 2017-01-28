@@ -127,51 +127,80 @@ class Viewer():
     def select_folder(self):
         dialog = QW.QFileDialog()
         pakfolder = dialog.getExistingDirectory()
-        statusdiag = QW.QMessageBox()
-
         if pakfolder != '':
-            name = os.path.basename(pakfolder)
-            dialog = QW.QInputDialog()
-            name, isAdd = dialog.getText(
-                dialog,
-                _translate("InputDialog", 'Add New pak Suite...'),
-                _translate("InputDialog", 'Please write new pak Suite name'),
-                QW.QLineEdit.Normal,
-                name
-            )
-            if isAdd:
-                try:
-                    newps = core.write_paksuite(name, pakfolder)
-                    self.append_paksuite(newps)
-                    statusdiag.setText(_translate(
-                        "InputDialog",
-                        'PakSuite was successfully added.'
-                    ))
-                except FileExistsError:
-                    statusdiag.setText(_translate(
-                        "InputDialog",
-                        "PakSuite '{}' already exists. Please use another name."
-                    ).format(name))
-                except NotPakSuiteError:
-                    statusdiag.setText(_translate(
-                        "InputDialog",
-                        "Folder {} is not Simutrans PakSuite Folder."
-                    ).format(name))
-            else:
-                statusdiag.setText(_translate(
-                    "InputDialog",
-                    "Adding PakSuite is cancelled"
-                ))
+            ret = self.input_paksuite_name(pakfolder)
         else:
-            statusdiag.setText(_translate(
+            ret = QW.QMessageBox()
+            ret.setText(_translate(
                 "InputDialog",
                 "Adding PakSuite is cancelled"
             ))
 
-        statusdiag.show()
-        self.windows.append(statusdiag)
+        ret.show()
+        self.windows.append(ret)
 
         return None
+
+    def input_paksuite_name(self, pakfolder):
+        statusdiag = QW.QMessageBox()
+        name = os.path.basename(pakfolder)
+        dialog = QW.QInputDialog()
+        name, isAdd = dialog.getText(
+            dialog,
+            _translate("InputDialog", 'Add New pak Suite...'),
+            _translate("InputDialog", 'Please write new pak Suite name'),
+            QW.QLineEdit.Normal,
+            name
+        )
+        if isAdd:
+            try:
+                newps = core.write_paksuite(name, pakfolder)
+                self.append_paksuite(newps)
+                status = 'success'
+            except FileExistsError:
+                a = statusdiag.question(
+                    statusdiag,
+                    _translate('InputDialog', 'PakSuite already exists'),
+                    _translate(
+                        'InputDialog',
+                        "PakSuite '{}' already exists. Overwrite?"
+                    ).format(name),
+                    QW.QMessageBox.Cancel |
+                    QW.QMessageBox.Yes |
+                    QW.QMessageBox.No
+                )
+                if a == QW.QMessageBox.Yes:
+                    newps = core.write_paksuite(name, pakfolder, True)
+                    self.append_paksuite(newps)
+                    status = 'success'
+                elif a == QW.QMessageBox.No:
+                    status = 'inherit'
+                    statusdiag = self.input_paksuite_name(pakfolder)
+                else:
+                    status = 'cancel'
+
+            except NotPakSuiteError:
+                status = 'NotPS'
+        else:
+            status = 'cancel'
+
+        if status == 'cancel':
+            statusdiag.setText(_translate(
+                "InputDialog",
+                "Adding PakSuite is cancelled"
+            ))
+        elif status == 'success':
+            statusdiag.setText(_translate(
+                "InputDialog",
+                'PakSuite was successfully added.'
+            ))
+        elif status == 'NotPS':
+            statusdiag.setText(_translate(
+                "InputDialog",
+                "Folder {} is not Simutrans PakSuite Folder."
+            ).format(name))
+
+        return statusdiag
 
     def spawn_ntviewer(self, objIndex):
         self.windows.append(NodeTreeViewer(objIndex))
