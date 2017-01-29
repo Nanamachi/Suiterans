@@ -7,10 +7,11 @@ import PyQt5.QtCore as QC
 import PyQt5.QtGui as QG
 
 import Qt.mainwindow as wi
-import Qt.nodetree as nt
+import Qt.treeviewer as tv
 import core
 import lib
 import painter
+import binaryViewer
 from customErr import *
 
 _translate = QC.QCoreApplication.translate
@@ -224,27 +225,30 @@ class NodeTreeViewer():
         model = QG.QStandardItemModel()
         model.appendRow(make_tree(obj))
 
-        self.dialog = QW.QDialog()
-        self.ntview = nt.Ui_TreeView()
-        self.ntview.setupUi(self.dialog)
-        self.ntview.TreeViewer.setModel(model)
-        self.dialog.setSizePolicy(QW.QSizePolicy(
+        self.viewer = QW.QMainWindow()
+        self.tvview = tv.Ui_TreeView()
+        self.tvview.setupUi(self.viewer)
+        self.tvview.TreeViewer.setModel(model)
+        self.viewer.setSizePolicy(QW.QSizePolicy(
             QW.QSizePolicy.Preferred,
             QW.QSizePolicy.Preferred
         ))
 
-        self.ntview.TreeViewer.clicked.connect(self.show_node)
-        self.dialog.show()
+        self.tvview.TreeViewer.clicked.connect(self.show_node)
+        self.viewer.show()
 
     def show_node(self, objIndex):
         obj = objIndex.model().itemFromIndex(objIndex).data()
         if getattr(obj, 'type') == 'IMG':
             imgmap = painter.paintobj(obj,128)
-            self.ntview.Interpreter.setPixmap(QG.QPixmap.fromImage(imgmap))
+            self.tvview.Interpreter.setPixmap(QG.QPixmap.fromImage(imgmap))
         elif getattr(obj, 'type') == 'TEXT':
-            self.ntview.Interpreter.setText(obj.text)
+            self.tvview.Interpreter.setText(obj.text)
         elif getattr(obj, 'type') == 'XREF':
-            self.ntview.Interpreter.setText(obj.xref)
+            self.tvview.Interpreter.setText(obj.xref)
+        self.tvview.BinaryBrowser.setPlainText(
+            binaryViewer.ReadableBinary(obj).bin()
+        )
 
 try:
     call_main()

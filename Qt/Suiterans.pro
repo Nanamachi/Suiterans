@@ -18,7 +18,8 @@ SOURCES +=\
 }
 HEADERS  +=
 FORMS    += mainwindow.ui \
-    nodetree.ui
+    nodetree.ui \
+    treeviewer.ui
 
 TRANSLATIONS += Suiterans_ja.ts
 
