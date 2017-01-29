@@ -235,7 +235,7 @@ class PakNode():
                 ret = self.child[number[0]].desc(*number[1:])
             except IndexError:
                 ret = None
-                logger.error(
+                logger.warning(
                     "{} has no desc {}. \n"
                     .format(self.__repr__(), number)
                     + "{} contains this node."

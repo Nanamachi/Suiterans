@@ -2,6 +2,7 @@
 import sys
 import glob
 import os
+import argparse
 import PyQt5.QtWidgets as QW
 import PyQt5.QtCore as QC
 import PyQt5.QtGui as QG
@@ -18,24 +19,32 @@ from loginit import *
 class Viewer(QW.QMainWindow):
 
     def __init__(self):
-        super().__init__()
+        try:
+            super().__init__()
 
-        self.windows = []
+            self.windows = []
 
-        self.ui = wi.Ui_MainWindow()
-        self.ui.setupUi(self)
+            self.ui = wi.Ui_MainWindow()
+            self.ui.setupUi(self)
 
-        self.paksuites_model = QG.QStandardItemModel(0,1)
-        for ps in core.read_paksuites():
-            self.append_paksuite(ps)
-        self.ui.folderlist.setModel(self.paksuites_model)
-        self.ui.folderlist.doubleClicked.connect(
-            SLM('Viewer', self.show_paksuite)
-        )
+            self.paksuites_model = QG.QStandardItemModel(0,1)
+            for ps in core.read_paksuites():
+                self.append_paksuite(ps)
+            self.ui.folderlist.setModel(self.paksuites_model)
+            self.ui.folderlist.doubleClicked.connect(
+                SLM('Viewer', self.show_paksuite)
+            )
+        except Exception as e:
+            logger.critical(
+                "Unexpected error occured. Program Stop...\n"\
+                + "{}: {}"
+                .format(type(e), e.args)
+            )
+            logger.exception(e)
+            raise
 
         self.ui.actionAdd_Simutrans_pak_folder.triggered.connect(
-            self.select_folder
-            # SLM('Viewer', self.select_folder)
+            SLM('Viewer', self.select_folder)
         )
         self.ui.actionExit.triggered.connect(app.quit)
 
@@ -123,7 +132,7 @@ class Viewer(QW.QMainWindow):
         else:
             self.ui.ImgViewer.setText('NoImage')
 
-    def select_folder(self, status):
+    def select_folder(self, _):
         dialog = QW.QFileDialog(self)
         pakfolder = dialog.getExistingDirectory()
         if pakfolder != '':
@@ -203,6 +212,7 @@ class Viewer(QW.QMainWindow):
         return statusdiag
 
     def spawn_ntviewer(self, objIndex):
+        logger.debug('spawn_ntviewer called.\nObjIndex: {}'.format(objIndex))
         NodeTreeViewer(self, objIndex).show()
 
 class NodeTreeViewer(QW.QMainWindow):
@@ -234,6 +244,8 @@ class NodeTreeViewer(QW.QMainWindow):
         self.tvview.TreeViewer.clicked.connect(
             SLM('TreeViewer', self.show_node)
         )
+        logger.debug('NTViewer successfully initialized.\n'\
+        + 'ObjIndex: {}'.format(objIndex))
 
     def show_node(self, objIndex):
         obj = objIndex.model().itemFromIndex(objIndex).data()
@@ -250,14 +262,30 @@ class NodeTreeViewer(QW.QMainWindow):
             binaryViewer.ReadableBinary(obj).bin()
         )
 
+if not os.path.isdir('conf/'):
+    os.mkdir('conf/')
+
+argparser = argparse.ArgumentParser(
+    description = "Simutrans PakFile Viewer & Manager."
+)
+argparser.add_argument('-d', '--debug',
+    help = "Select debug level. "\
+    + "1:DEBUG\n2:INFO\n3:WARNING(default)\n4:ERROR\n5:CRITICAL",
+    type = int,
+    choices = range(1,6)
+)
+args = argparser.parse_args()
+if args.debug != None:
+    handler.setLevel(args.debug * 10)
+    logger.setLevel(args.debug * 10)
+
 _translate = QC.QCoreApplication.translate
 translator = QC.QTranslator()
 translator.load('locale/Suiterans_ja')
 app = QW.QApplication(sys.argv)
 app.installTranslator(translator)
 
-if __name__ == '__main__':
-    logger.debug('--------Suiterans: Simutrans pak manager--------')
-    vwr = Viewer()
-    vwr.show()
-    sys.exit(app.exec_())
+logger.debug('--------Suiterans: Simutrans pak manager--------')
+vwr = Viewer()
+vwr.show()
+sys.exit(app.exec_())

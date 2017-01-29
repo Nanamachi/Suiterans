@@ -2,44 +2,46 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ja_JP" sourcelanguage="en_US">
 <context>
-    <name>Dialog</name>
-    <message>
-        <location filename="nodetree.ui" line="14"/>
-        <source>Dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>InputDialog</name>
     <message>
-        <location filename="../Suiterans.py" line="135"/>
+        <location filename="../Suiterans.py" line="146"/>
         <source>Add New pak Suite...</source>
         <translation>pak suiteを追加する...</translation>
     </message>
     <message>
-        <location filename="../Suiterans.py" line="135"/>
+        <location filename="../Suiterans.py" line="146"/>
         <source>Please write new pak Suite name</source>
         <translation>新しいpak suiteの名前を入力してください</translation>
     </message>
     <message>
-        <location filename="../Suiterans.py" line="146"/>
+        <location filename="../Suiterans.py" line="193"/>
         <source>PakSuite was successfully added.</source>
         <translation>PakSuiteは正常に追加されました。</translation>
     </message>
     <message>
-        <location filename="../Suiterans.py" line="166"/>
+        <location filename="../Suiterans.py" line="188"/>
         <source>Adding PakSuite is cancelled</source>
         <translation>PakSuiteの追加がキャンセルされました</translation>
     </message>
     <message>
         <location filename="../Suiterans.py" line="151"/>
         <source>PakSuite &apos;{}&apos; already exists. Please use another name.</source>
-        <translation>{}というPakSuiteがすでに存在しています。他の名前を使用してください。</translation>
+        <translation type="obsolete">{}というPakSuiteがすでに存在しています。他の名前を使用してください。</translation>
     </message>
     <message>
-        <location filename="../Suiterans.py" line="156"/>
+        <location filename="../Suiterans.py" line="198"/>
         <source>Folder {} is not Simutrans PakSuite Folder.</source>
         <translation>フォルダ「{}」はPakSuiteフォルダではありません。</translation>
+    </message>
+    <message>
+        <location filename="../Suiterans.py" line="160"/>
+        <source>PakSuite already exists</source>
+        <translation>PakSuiteがすでに存在しています</translation>
+    </message>
+    <message>
+        <location filename="../Suiterans.py" line="160"/>
+        <source>PakSuite &apos;{}&apos; already exists. Overwrite?</source>
+        <translation>{}というPakSuiteがすでに存在しています。上書きますか?</translation>
     </message>
 </context>
 <context>
@@ -50,28 +52,36 @@
         <translation>Suiterans</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="124"/>
+        <location filename="mainwindow.ui" line="139"/>
         <source>File</source>
         <translation>ファイル</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="135"/>
+        <location filename="mainwindow.ui" line="150"/>
         <source>Open .pak files</source>
         <translation>pakファイルを開く</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="140"/>
+        <location filename="mainwindow.ui" line="155"/>
         <source>Add Simutrans .pak folder</source>
         <translation>pakフォルダを追加する</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="145"/>
+        <location filename="mainwindow.ui" line="160"/>
         <source>Exit</source>
         <translation>Suiteransを終了する</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="148"/>
+        <location filename="mainwindow.ui" line="163"/>
         <source>Ctrl+Q</source>
+        <translation></translation>
+    </message>
+</context>
+<context>
+    <name>TreeView</name>
+    <message>
+        <location filename="treeviewer.ui" line="17"/>
+        <source>Suiterans Tree Viewer</source>
         <translation></translation>
     </message>
 </context>

@@ -33,8 +33,11 @@ logger = getLogger()
 formatter = SuiteransFormatter(
     '{levelname:<8}| {message}', style = '{'
 )
+
+if not os.path.isdir('logs/'):
+    os.mkdir('logs/')
 handler = RotatingFileHandler('logs/suiterans.log', maxBytes = 65536, backupCount = 3)
-handler.setLevel(DEBUG)
+handler.setLevel(WARNING)
 handler.setFormatter(formatter)
-logger.setLevel(DEBUG)
+logger.setLevel(WARNING)
 logger.addHandler(handler)
