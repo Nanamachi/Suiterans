@@ -6,15 +6,27 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>638</width>
-    <height>380</height>
+    <width>634</width>
+    <height>395</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Suiterans</string>
   </property>
   <widget class="QWidget" name="centralWidget">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <property name="sizeConstraint">
+     <enum>QLayout::SetMinAndMaxSize</enum>
+    </property>
     <item>
      <layout class="QGridLayout" name="gridLayout">
       <item row="1" column="0" rowspan="5">
@@ -76,8 +88,11 @@
       </item>
       <item row="4" column="1" rowspan="3" colspan="2">
        <widget class="QTableView" name="pakinfo">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -85,7 +100,7 @@
        </widget>
       </item>
       <item row="4" column="3" rowspan="3">
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="ImgViewer">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -115,7 +130,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>638</width>
+     <width>634</width>
      <height>21</height>
     </rect>
    </property>

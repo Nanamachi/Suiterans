@@ -1,48 +1,64 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 import sys
 import glob
 import os
+import argparse
 import PyQt5.QtWidgets as QW
 import PyQt5.QtCore as QC
 import PyQt5.QtGui as QG
 
 import Qt.mainwindow as wi
-import Qt.nodetree as nt
+import Qt.treeviewer as tv
 import core
 import lib
 import painter
+import binaryViewer
 from customErr import *
+from loginit import *
 
-_translate = QC.QCoreApplication.translate
-translator = QC.QTranslator()
-translator.load('locale/Suiterans_ja')
-app = QW.QApplication(sys.argv)
-app.installTranslator(translator)
-window = QW.QMainWindow()
-ui = wi.Ui_MainWindow()
-ui.setupUi(window)
-
-def call_main():
-
-    ui.actionExit.triggered.connect(app.quit)
-
-    vwr = Viewer()
-
-    window.show()
-    sys.exit(app.exec_())
-
-class Viewer():
+class Viewer(QW.QMainWindow):
 
     def __init__(self):
-        self.windows = []
 
-        self.paksuites_model = QG.QStandardItemModel(0,1)
-        for ps in core.read_paksuites():
-            self.append_paksuite(ps)
-        ui.folderlist.setModel(self.paksuites_model)
-        ui.folderlist.doubleClicked.connect(self.show_paksuite)
+        logger.debug('Viewer init start...')
 
-        ui.actionAdd_Simutrans_pak_folder.triggered.connect(self.select_folder)
+        try:
+            super().__init__()
+
+            self.windows = []
+
+            self.ui = wi.Ui_MainWindow()
+            self.ui.setupUi(self)
+
+            self.paksuites_model = QG.QStandardItemModel(0,1)
+            for ps in core.read_paksuites():
+                self.append_paksuite(ps)
+            self.ui.folderlist.setModel(self.paksuites_model)
+            self.ui.folderlist.doubleClicked.connect(
+                SLM('Viewer', self.show_paksuite)
+            )
+        except Exception as e:
+            logger.critical(
+                "Unexpected error occured. Program Stop...\n"\
+                + "{}: {}"
+                .format(type(e), e.args)
+            )
+            logger.exception(e)
+            raise
+
+        self.ui.actionAdd_Simutrans_pak_folder.triggered.connect(
+            SLM('Viewer', self.select_folder)
+        )
+        self.ui.actionExit.triggered.connect(app.quit)
+
+        self.ui.paklist.clicked.connect(
+            SLM('Viewer', self.show_obj)
+        )
+        self.ui.paklist.doubleClicked.connect(
+            SLM('Viewer', self.spawn_ntviewer)
+        )
+
+        logger.debug('Viewer successfully initialized.')
 
     def append_paksuite(self, ps):
         Qtps = QG.QStandardItem()
@@ -61,9 +77,9 @@ class Viewer():
             header_list[i].setText(c)
 
         header_model.appendRow(header_list)
-        ui.paklist.horizontalHeader().setModel(header_model)
+        self.ui.paklist.horizontalHeader().setModel(header_model)
 
-        ui.progressBar.setMaximum(self.paksuite.amount)
+        self.ui.progressBar.setMaximum(self.paksuite.amount)
         if not hasattr(self.paksuite, 'pak') \
             or self.paksuite.get_amount() != self.paksuite.amount:
             self.paksuite.amount = self.paksuite.get_amount()
@@ -71,11 +87,11 @@ class Viewer():
             for i, pakf_path in\
                 enumerate(glob.glob(self.paksuite.path_main + '\\*.pak')):
                 self.paksuite.load_each(pakf_path)
-                ui.progressBar.setValue(i)
+                self.ui.progressBar.setValue(i)
             for j, pakf_path in\
                 enumerate(glob.glob(self.paksuite.path_addon + '\\*.pak')):
                 self.paksuite.load_each(pakf_path)
-                ui.progressBar.setValue(i+j)
+                self.ui.progressBar.setValue(i+j)
 
         paklists_model = QG.QStandardItemModel(0,3)
 
@@ -96,11 +112,8 @@ class Viewer():
                 Qtpf[2].setEditable(False)
                 paklists_model.appendRow(Qtpf)
 
-        ui.paklist.setModel(paklists_model)
-        ui.progressBar.setValue(0)
-
-        ui.paklist.clicked.connect(self.show_obj)
-        ui.paklist.doubleClicked.connect(self.spawn_ntviewer)
+        self.ui.paklist.setModel(paklists_model)
+        self.ui.progressBar.setValue(0)
 
     def show_obj(self,objIndex):
         obj = objIndex.model().item(objIndex.row()).data()
@@ -116,35 +129,34 @@ class Viewer():
                 Qtpo[1].setEditable(False)
                 obj_model.appendRow(Qtpo)
 
-        ui.pakinfo.setModel(obj_model)
+        self.ui.pakinfo.setModel(obj_model)
 
         if obj.type in lib.imaged_obj:
             imgmap = painter.paintobj(obj, self.paksuite.size)
-            ui.label.setPixmap(QG.QPixmap.fromImage(imgmap))
+            self.ui.ImgViewer.setPixmap(QG.QPixmap.fromImage(imgmap))
         else:
-            ui.label.setText('NoImage')
+            self.ui.ImgViewer.setText('NoImage')
 
-    def select_folder(self):
-        dialog = QW.QFileDialog()
+    def select_folder(self, _):
+        dialog = QW.QFileDialog(self)
         pakfolder = dialog.getExistingDirectory()
         if pakfolder != '':
             ret = self.input_paksuite_name(pakfolder)
         else:
-            ret = QW.QMessageBox()
+            ret = QW.QMessageBox(self)
             ret.setText(_translate(
                 "InputDialog",
                 "Adding PakSuite is cancelled"
             ))
 
         ret.show()
-        self.windows.append(ret)
 
         return None
 
     def input_paksuite_name(self, pakfolder):
-        statusdiag = QW.QMessageBox()
+        statusdiag = QW.QMessageBox(self)
         name = os.path.basename(pakfolder)
-        dialog = QW.QInputDialog()
+        dialog = QW.QInputDialog(self)
         name, isAdd = dialog.getText(
             dialog,
             _translate("InputDialog", 'Add New pak Suite...'),
@@ -158,6 +170,7 @@ class Viewer():
                 self.append_paksuite(newps)
                 status = 'success'
             except FileExistsError:
+                logger.info('PakSuite name duplicates.')
                 a = statusdiag.question(
                     statusdiag,
                     _translate('InputDialog', 'PakSuite already exists'),
@@ -180,6 +193,7 @@ class Viewer():
                     status = 'cancel'
 
             except NotPakSuiteError:
+                logger.info('Selected folder is not a PakSuite folder.')
                 status = 'NotPS'
         else:
             status = 'cancel'
@@ -203,10 +217,12 @@ class Viewer():
         return statusdiag
 
     def spawn_ntviewer(self, objIndex):
-        self.windows.append(NodeTreeViewer(objIndex))
+        NodeTreeViewer(self, objIndex).show()
 
-class NodeTreeViewer():
-    def __init__(self, objIndex):
+class NodeTreeViewer(QW.QMainWindow):
+    def __init__(self, parent, objIndex):
+
+        super().__init__(parent)
 
         def make_tree(obj):
             ret = QG.QStandardItem()
@@ -221,26 +237,57 @@ class NodeTreeViewer():
         model = QG.QStandardItemModel()
         model.appendRow(make_tree(obj))
 
-        self.dialog = QW.QDialog()
-        self.ntview = nt.Ui_Dialog()
-        self.ntview.setupUi(self.dialog)
-        self.ntview.treeView.setModel(model)
-        self.dialog.setSizePolicy(QW.QSizePolicy(
+        self.tvview = tv.Ui_TreeView()
+        self.tvview.setupUi(self)
+        self.tvview.TreeViewer.setModel(model)
+        self.setSizePolicy(QW.QSizePolicy(
             QW.QSizePolicy.Preferred,
             QW.QSizePolicy.Preferred
         ))
 
-        self.ntview.treeView.clicked.connect(self.show_node)
-        self.dialog.show()
+        self.tvview.TreeViewer.clicked.connect(
+            SLM('TreeViewer', self.show_node)
+        )
 
     def show_node(self, objIndex):
         obj = objIndex.model().itemFromIndex(objIndex).data()
         if getattr(obj, 'type') == 'IMG':
             imgmap = painter.paintobj(obj,128)
-            self.ntview.label.setPixmap(QG.QPixmap.fromImage(imgmap))
+            self.tvview.Interpreter.setPixmap(QG.QPixmap.fromImage(imgmap))
         elif getattr(obj, 'type') == 'TEXT':
-            self.ntview.label.setText(obj.text)
+            self.tvview.Interpreter.setText(obj.text)
         elif getattr(obj, 'type') == 'XREF':
-            self.ntview.label.setText(obj.xref)
+            self.tvview.Interpreter.setText(obj.xref)
+        else:
+            self.tvview.Interpreter.setText(str(obj))
+        self.tvview.BinaryBrowser.setPlainText(
+            binaryViewer.ReadableBinary(obj).bin()
+        )
 
-call_main()
+if not os.path.isdir('conf/'):
+    os.mkdir('conf/')
+
+argparser = argparse.ArgumentParser(
+    description = "Simutrans PakFile Viewer & Manager."
+)
+argparser.add_argument('-d', '--debug',
+    help = "Select debug level. "\
+    + "1:DEBUG\n2:INFO\n3:WARNING(default)\n4:ERROR\n5:CRITICAL",
+    type = int,
+    choices = range(1,6)
+)
+args = argparser.parse_args()
+if args.debug != None:
+    handler.setLevel(args.debug * 10)
+    logger.setLevel(args.debug * 10)
+
+_translate = QC.QCoreApplication.translate
+translator = QC.QTranslator()
+translator.load('locale/Suiterans_ja')
+app = QW.QApplication(sys.argv)
+app.installTranslator(translator)
+
+logger.debug('--------Suiterans: Simutrans pak manager--------')
+vwr = Viewer()
+vwr.show()
+sys.exit(app.exec_())

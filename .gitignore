@@ -6,4 +6,5 @@ Suiterans/
 Suiterans*.zip
 *.pro.user
 *.pak
-*.log
+logs/
+*.orig

@@ -7,6 +7,7 @@ import json
 
 import read_pak
 from customErr import *
+from loginit import *
 
 _op = os.path
 
@@ -28,7 +29,6 @@ class PakSuite():
                 'addons',
                 self.dirname
             )
-            print(self.path_addon)
         self.amount = self.get_amount()
         self.size = check_paksuite(self.path_main)
 
@@ -40,7 +40,13 @@ class PakSuite():
         return amount
 
     def load_each(self, pakf_path):
-        self.pak.append(read_pak.PakFile(pakf_path))
+        try:
+            self.pak.append(read_pak.PakFile(pakf_path))
+        except NotPakFileError:
+            logger.error(
+                'Cannot read %s. Skipping... ',
+                _op.basename(pakf_path)
+            )
 
     def __repr__(self):
         return "<Suiterans PakSuite: " +self.path_main+ ">"
@@ -56,7 +62,6 @@ def read_paksuites():
 def read_paksuite(configfn):
     configf = codecs.open(configfn, 'r', 'utf-8')
     configs = json.load(configf, encoding = 'utf-8')
-    print(configs)
     configf.close()
     if not 'singleuser' in configs:
         write_paksuite(configs['name'], configs['dir'], True)

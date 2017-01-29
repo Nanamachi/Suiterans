@@ -8,32 +8,63 @@ import PyQt5.QtWidgets as QW
 
 import lib
 from customErr import *
+from loginit import *
 
 class PakFile(): #read .pak and extract into PakNode instance
     def __init__(self, path):
-        # http://www.ajisaba.net/python/binary.html
-        _fp = open(path, 'rb')
-        self.path = path
-        self.name = os.path.basename(path)
-        while True:
-            if _fp.read(4) == b'ROOT':
-                break
-            else:
-                _fp.seek(-3,1)
+        try:
+            # http://www.ajisaba.net/python/binary.html
+            _fp = open(path, 'rb')
+            self.path = path
+            self.name = os.path.basename(path)
 
-        _fp.seek(-4, 1) #back 4chars from here
-        self.root = ROOTNode(_fp)
-        _fp.close()
+            for i in range(os.path.getsize(path)):
+                b = _fp.read(4)
+                _fp.seek(-4,1)
+                if b == b'ROOT':
+                    break
+                else:
+                    _fp.seek(1,1)
+            else:
+                raise NotPakFileError(self.name)
+
+            self.root = ROOTNode(_fp, self)
+
+            _fp.close()
+        except Exception as e:
+            logger.exception(e)
+            raise
 
     def __repr__ (self):
-        return "<Simutrans Pak File '{}'>".format(self.path)
+        return "<Simutrans Pak File '{}'>".format(self.name)
 
 class PakNode():
-    def __init__(self, fp): #read data from binary and spawn child Nodes
+    def __init__(self, fp, parent = None): #read data from binary and spawn child Nodes
+
         [self.type, self.child_count, self.data_len,] \
             = self.read_header(fp)
+        self.remain_len = self.data_len
+        self.pos = fp.tell()
 
-        self.read_data(fp)
+        self.parent = parent
+        if isinstance(parent, PakFile):
+            self.pakfile = parent
+        elif isinstance(parent, PakNode):
+            self.pakfile = parent.pakfile
+        else:
+            logger.warning('{}Node has invalid parent.'.format(self.type))
+
+        try:
+            self.read_data(fp)
+        except StreamTooLongError:
+            logger.error(
+                '{} is too long to read.\n'
+                .format(self.__repr__())
+                + 'This occured while reading {}.\n'
+                .format(self.pakfile)
+                + 'Skipping surplus bytes...'
+            )
+            fp.seek(self.remain_len, 1)
 
         self.child = []
         for i in range(self.child_count):
@@ -44,7 +75,7 @@ class PakNode():
             child_class = globals()[child_type + 'Node']
             fp.seek(-4, 1) #back 4chars from here
 
-            self.child.append(child_class(fp))
+            self.child.append(child_class(fp, parent = self))
 
         #set name and author from child TEXTNode
         if self.type in lib.named_obj:
@@ -136,55 +167,57 @@ class PakNode():
         ]
 
     def set_intro(self, v_th):
-        if self.version > v_th:
-            self.intro_year  = int(self.intro / 12)
-            self.intro_month = int(self.intro % 12) + 1
-        else:
-            self.intro_year  = int(self.intro / 16)
-            self.intro_month = int(self.intro % 16) + 1
+        if hasattr(self, 'intro'):
+            if self.version > v_th:
+                self.intro_year  = int(self.intro / 12)
+                self.intro_month = int(self.intro % 12) + 1
+            else:
+                self.intro_year  = int(self.intro / 16)
+                self.intro_month = int(self.intro % 16) + 1
 
         return None
 
     def set_retire(self, v_th):
-        if self.version > v_th:
-            self.retire_year  = int(self.retire / 12)
-            self.retire_month = int(self.retire % 12) + 1
-        else:
-            self.retire_year  = int(self.retire / 16)
-            self.retire_month = int(self.retire % 16) + 1
+        if hasattr(self, 'retire'):
+            if self.version > v_th:
+                self.retire_year  = int(self.retire / 12)
+                self.retire_month = int(self.retire % 12) + 1
+            else:
+                self.retire_year  = int(self.retire / 16)
+                self.retire_month = int(self.retire % 16) + 1
 
         return None
 
     def read_data(self, fp): #read own data with list defined by lib.py
 
         #get version
-        [dump, self.data_len] = self.read_LE(fp, 'uint16', self.data_len)
+        [dump, self.remain_len] = self.read_LE(fp, 'uint16', self.remain_len)
         self.version = dump & 0x7FFF if dump & 0x8000 else 0
         if self.version == 0:
             fp.seek(-2, 1)
-            self.data_len += 2
+            self.remain_len += 2
 
         #read self param
         for c in getattr(lib, self.type + 'param'):
             param = c(self.version)
             if param != None:
-                [val, self.data_len] = self.read_LE(fp, param[1], self.data_len)
+                [val, self.remain_len] = self.read_LE(fp, param[1], self.remain_len)
                 if  (param[0] == 'sound')\
                     and (val == -2)\
                     and (self.type == 'CRSS'):
-                    [sfile_len, self.data_len] \
-                        = self.read_LE(fp, 'sint8', self.data_len)
+                    [sfile_len, self.remain_len] \
+                        = self.read_LE(fp, 'sint8', self.remain_len)
                     self.wav = fp.read(sfile_len).decode()
-                    self.data_len -= sfile_len
+                    self.remain_len -= sfile_len
                 setattr(self, param[0], param[2](val))
         if self.type == 'VHCL' and getattr(self, 'sound', None) == -2:
-            [sfile_len, self.data_len] \
-                = self.read_LE(fp, 'sint8', self.data_len)
+            [sfile_len, self.remain_len] \
+                = self.read_LE(fp, 'sint8', self.remain_len)
             self.wav = fp.read(sfile_len)
-            self.data_len -= sfile_len
+            self.remain_len -= sfile_len
 
-        if self.data_len != 0:
-            raise StreamTooLongError(self.data_len, self.version)
+        if self.remain_len != 0:
+            raise StreamTooLongError(self.remain_len, self.version)
 
         return None
 
@@ -205,6 +238,12 @@ class PakNode():
                 ret = self.child[number[0]].desc(*number[1:])
             except IndexError:
                 ret = None
+                logger.warning(
+                    "{} has no desc {}. \n"
+                    .format(self.__repr__(), number)
+                    + "{} contains this node."
+                    .format(self.pakfile.name)
+                )
             return ret
 
     def searchNode(self, obj, typ, pos = 0):
@@ -228,33 +267,29 @@ class BRDGNode(PakNode):
     def read_data(self, fp):
         super().read_data(fp)
 
-        if hasattr(self, 'intro'):
-            self.set_intro(4)
-            self.set_retire(4)
+        self.set_intro(4)
+        self.set_retire(4)
 
 class BUILNode(PakNode):
     def read_data(self, fp):
         super().read_data(fp)
 
-        if hasattr(self, 'intro'):
-            self.set_intro(1)
-            self.set_retire(1)
+        self.set_intro(1)
+        self.set_retire(1)
 
 class CCARNode(PakNode):
     def read_data(self, fp):
         super().read_data(fp)
 
-        if hasattr(self, 'intro'):
-            self.set_intro(1)
-            self.set_retire(1)
+        self.set_intro(1)
+        self.set_retire(1)
 
 class CRSSNode(PakNode):
     def read_data(self, fp):
         super().read_data(fp)
 
-        if hasattr(self, 'intro'):
-            self.set_intro(1)
-            self.set_retire(1)
+        self.set_intro(1)
+        self.set_retire(1)
 
 class CURSNode(PakNode):
     def read_data(self, fp):
@@ -296,22 +331,22 @@ class IMGNode(PakNode):
 
     def read_data(self, fp):
         fp.seek(6,1)
-        [self.version, _] = self.read_LE(fp, 'uint8', self.data_len)
+        [self.version, _] = self.read_LE(fp, 'uint8', self.remain_len)
         fp.seek(-7,1)
         for c in getattr(lib, self.type + 'param'):
             param = c(self.version)
             if param != None:
-                [val, self.data_len] = self.read_LE(fp, param[1], self.data_len)
+                [val, self.remain_len] = self.read_LE(fp, param[1], self.remain_len)
                 setattr(self, param[0], param[2](val))
 
         if self.version == 3:
-            self.length = int(self.data_len / 2)
+            self.length = int(self.remain_len / 2)
 
         self.img = fp.read(self.length * 2)
-        self.data_len -= self.length * 2
+        self.remain_len -= self.length * 2
 
-        if self.data_len != 0:
-            raise StreamTooLongError(self.data_len, self.version)
+        if self.remain_len != 0:
+            raise StreamTooLongError(self.remain_len, self.version)
 
         return None
 
@@ -322,11 +357,11 @@ class IMG1Node(PakNode):
         for c in getattr(lib, self.type + 'param'):
             param = c(self.version)
             if param != None:
-                [val, self.data_len] = self.read_LE(fp, param[1], self.data_len)
+                [val, self.remain_len] = self.read_LE(fp, param[1], self.remain_len)
                 setattr(self, param[0], param[2](val))
 
-        if self.data_len != 0:
-            raise StreamTooLongError(self.data_len, self.version)
+        if self.remain_len != 0:
+            raise StreamTooLongError(self.remain_len, self.version)
 
 class IMG2Node(PakNode):
     def read_data(self, fp):
@@ -335,11 +370,11 @@ class IMG2Node(PakNode):
         for c in getattr(lib, self.type + 'param'):
             param = c(self.version)
             if param != None:
-                [val, self.data_len] = self.read_LE(fp, param[1], self.data_len)
+                [val, self.remain_len] = self.read_LE(fp, param[1], self.remain_len)
                 setattr(self, param[0], param[2](val))
 
-        if self.data_len != 0:
-            raise StreamTooLongError(self.data_len, self.version)
+        if self.remain_len != 0:
+            raise StreamTooLongError(self.remain_len, self.version)
 
 class MENUNode(PakNode):
     def read_data(self, fp):
@@ -377,7 +412,7 @@ class SYMBNode(PakNode):
 
 class TEXTNode(PakNode):
     def read_data(self, fp):
-        self.text = fp.read(self.data_len).decode('sjis', errors = 'ignore')[:-1]
+        self.text = fp.read(self.remain_len).decode('sjis', errors = 'ignore')[:-1]
 
 class TILENode(PakNode):
     pass
@@ -396,10 +431,8 @@ class VHCLNode(PakNode):
     def read_data(self, fp):
         super().read_data(fp)
 
-        if hasattr(self, 'intro'):
-            self.set_intro(4)
-        if hasattr(self, 'retire'):
-            self.set_retire(4)
+        self.set_intro(4)
+        self.set_retire(4)
 
 class WAYNode(PakNode):
     def read_data(self, fp):
@@ -417,7 +450,7 @@ class WYOBNode(PakNode):
 
 class XREFNode(PakNode):
     def read_data(self, fp):
-        self.xref = fp.read(self.data_len).decode('sjis', errors = 'ignore')
+        self.xref = fp.read(self.remain_len).decode('sjis', errors = 'ignore')
 
 def main(path):
     pak = PakFile(path)
