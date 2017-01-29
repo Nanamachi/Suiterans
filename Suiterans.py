@@ -19,6 +19,9 @@ from loginit import *
 class Viewer(QW.QMainWindow):
 
     def __init__(self):
+
+        logger.debug('Viewer init start...')
+
         try:
             super().__init__()
 
@@ -47,6 +50,15 @@ class Viewer(QW.QMainWindow):
             SLM('Viewer', self.select_folder)
         )
         self.ui.actionExit.triggered.connect(app.quit)
+
+        self.ui.paklist.clicked.connect(
+            SLM('Viewer', self.show_obj)
+        )
+        self.ui.paklist.doubleClicked.connect(
+            SLM('Viewer', self.spawn_ntviewer)
+        )
+
+        logger.debug('Viewer successfully initialized.')
 
     def append_paksuite(self, ps):
         Qtps = QG.QStandardItem()
@@ -102,13 +114,6 @@ class Viewer(QW.QMainWindow):
 
         self.ui.paklist.setModel(paklists_model)
         self.ui.progressBar.setValue(0)
-
-        self.ui.paklist.clicked.connect(
-            SLM('Viewer', self.show_obj)
-        )
-        self.ui.paklist.doubleClicked.connect(
-            SLM('Viewer', self.spawn_ntviewer)
-        )
 
     def show_obj(self,objIndex):
         obj = objIndex.model().item(objIndex.row()).data()
@@ -212,7 +217,6 @@ class Viewer(QW.QMainWindow):
         return statusdiag
 
     def spawn_ntviewer(self, objIndex):
-        logger.debug('spawn_ntviewer called.\nObjIndex: {}'.format(objIndex))
         NodeTreeViewer(self, objIndex).show()
 
 class NodeTreeViewer(QW.QMainWindow):
@@ -244,8 +248,6 @@ class NodeTreeViewer(QW.QMainWindow):
         self.tvview.TreeViewer.clicked.connect(
             SLM('TreeViewer', self.show_node)
         )
-        logger.debug('NTViewer successfully initialized.\n'\
-        + 'ObjIndex: {}'.format(objIndex))
 
     def show_node(self, objIndex):
         obj = objIndex.model().itemFromIndex(objIndex).data()
