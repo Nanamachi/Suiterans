@@ -43,10 +43,10 @@ class PakFile(): #read .pak and extract into PakNode instance
 class PakNode():
     def __init__(self, fp, parent = None): #read data from binary and spawn child Nodes
 
-        self.pos = fp.tell()
         [self.type, self.child_count, self.data_len,] \
             = self.read_header(fp)
         self.remain_len = self.data_len
+        self.pos = fp.tell()
 
         self.parent = parent
         if isinstance(parent, PakFile):
