@@ -44,8 +44,8 @@ def paintobj(obj, size):
         paint(qimg, obj.searchNode(obj,'IMG1',0).desc(0), QC.QPoint(0,0))
         paint(qimg, obj.searchNode(obj,'IMG1',1).desc(0), QC.QPoint(0,0))
     elif obj.type == 'WYOB':
-        paint(qimg, obj.searchNode(obj,'IMG1',0).desc(5), QC.QPoint(0,0))
         paint(qimg, obj.searchNode(obj,'IMG1',1).desc(5), QC.QPoint(0,0))
+        paint(qimg, obj.searchNode(obj,'IMG1',0).desc(5), QC.QPoint(0,0))
     elif obj.type == 'WAY' :
         paint(qimg, obj.searchNode(obj,'IMG1',0).desc(5), QC.QPoint(0,0))
         frontimg = obj.searchNode(obj, 'IMG1',7)

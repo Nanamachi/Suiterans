@@ -17,13 +17,16 @@ class PakFile(): #read .pak and extract into PakNode instance
             _fp = open(path, 'rb')
             self.path = path
             self.name = os.path.basename(path)
-            while True:
-                if _fp.read(4) == b'ROOT':
+
+            for i in range(os.path.getsize(path)):
+                b = _fp.read(4)
+                _fp.seek(-4,1)
+                if b == b'ROOT':
                     break
                 else:
-                    _fp.seek(-3,1)
-
-            _fp.seek(-4, 1) #back 4chars from here
+                    _fp.seek(1,1)
+            else:
+                raise NotPakFileError(self.name)
 
             self.root = ROOTNode(_fp, self)
 
@@ -235,7 +238,7 @@ class PakNode():
                 ret = self.child[number[0]].desc(*number[1:])
             except IndexError:
                 ret = None
-                logger.error(
+                logger.warning(
                     "{} has no desc {}. \n"
                     .format(self.__repr__(), number)
                     + "{} contains this node."

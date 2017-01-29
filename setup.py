@@ -18,7 +18,7 @@ exe = Executable(script = 'Suiterans.py', base = base)
 
 setup(
     name = "Suiterans",
-    version = "0.0.2",
+    version = "0.3.0",
     description = "Suiterans---Simutrans pak management Suite",
     executables = [exe],
     options = {'build_exe' : options},

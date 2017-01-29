@@ -42,9 +42,9 @@ class PakSuite():
     def load_each(self, pakf_path):
         try:
             self.pak.append(read_pak.PakFile(pakf_path))
-        except StreamTooLongError:
+        except NotPakFileError:
             logger.error(
-                'Cannot read %s. Skipping... \n',
+                'Cannot read %s. Skipping... ',
                 _op.basename(pakf_path)
             )
 

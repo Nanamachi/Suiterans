@@ -51,6 +51,18 @@ class NotPakSuiteError(Exception):
     def __repr__(self):
         return "NotPakSuiteError: " + self.message
 
+class NotPakFileError(Exception):
+    def __init__(self, filename):
+        self._filename = filename
+        self.message = \
+            "{} doesn't is not proper Simutrans pak file."\
+            .format(self._filename)
+
+        super().__init__(self.__repr__())
+
+    def __repr__(self):
+        return "NotPakFileError: " + self.message
+
 class NodeNotFoundError(Exception):
     def __init__(self, obj, typ):
         self._obj = obj
