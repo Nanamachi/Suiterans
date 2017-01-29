@@ -34,7 +34,8 @@ class Viewer(QW.QMainWindow):
         )
 
         self.ui.actionAdd_Simutrans_pak_folder.triggered.connect(
-            SLM('Viewer', self.select_folder)
+            self.select_folder
+            # SLM('Viewer', self.select_folder)
         )
         self.ui.actionExit.triggered.connect(app.quit)
 
@@ -122,27 +123,26 @@ class Viewer(QW.QMainWindow):
         else:
             self.ui.ImgViewer.setText('NoImage')
 
-    def select_folder(self):
-        dialog = QW.QFileDialog()
+    def select_folder(self, status):
+        dialog = QW.QFileDialog(self)
         pakfolder = dialog.getExistingDirectory()
         if pakfolder != '':
             ret = self.input_paksuite_name(pakfolder)
         else:
-            ret = QW.QMessageBox()
+            ret = QW.QMessageBox(self)
             ret.setText(_translate(
                 "InputDialog",
                 "Adding PakSuite is cancelled"
             ))
 
         ret.show()
-        self.windows.append(ret)
 
         return None
 
     def input_paksuite_name(self, pakfolder):
-        statusdiag = QW.QMessageBox()
+        statusdiag = QW.QMessageBox(self)
         name = os.path.basename(pakfolder)
-        dialog = QW.QInputDialog()
+        dialog = QW.QInputDialog(self)
         name, isAdd = dialog.getText(
             dialog,
             _translate("InputDialog", 'Add New pak Suite...'),
@@ -203,10 +203,12 @@ class Viewer(QW.QMainWindow):
         return statusdiag
 
     def spawn_ntviewer(self, objIndex):
-        self.windows.append(NodeTreeViewer(objIndex))
+        NodeTreeViewer(self, objIndex).show()
 
-class NodeTreeViewer():
-    def __init__(self, objIndex):
+class NodeTreeViewer(QW.QMainWindow):
+    def __init__(self, parent, objIndex):
+
+        super().__init__(parent)
 
         def make_tree(obj):
             ret = QG.QStandardItem()
@@ -221,11 +223,10 @@ class NodeTreeViewer():
         model = QG.QStandardItemModel()
         model.appendRow(make_tree(obj))
 
-        self.viewer = QW.QMainWindow(vwr)
         self.tvview = tv.Ui_TreeView()
-        self.tvview.setupUi(self.viewer)
+        self.tvview.setupUi(self)
         self.tvview.TreeViewer.setModel(model)
-        self.viewer.setSizePolicy(QW.QSizePolicy(
+        self.setSizePolicy(QW.QSizePolicy(
             QW.QSizePolicy.Preferred,
             QW.QSizePolicy.Preferred
         ))
@@ -233,7 +234,6 @@ class NodeTreeViewer():
         self.tvview.TreeViewer.clicked.connect(
             SLM('TreeViewer', self.show_node)
         )
-        self.viewer.show()
 
     def show_node(self, objIndex):
         obj = objIndex.model().itemFromIndex(objIndex).data()

@@ -4,7 +4,7 @@ from logging.handlers import RotatingFileHandler
 from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL
 import os
 
-class SuiteransLoggerManager():
+class LoggedFunction():
     def __init__(self, name = None, func = None, *args):
         self._logger = getLogger(name + '.' + func.__name__)
         self._func = func
@@ -28,7 +28,7 @@ class SuiteransFormatter(Formatter):
         s = s.replace('\n', '\n' + ' '*8 + '| ')
         return s
 
-SLM = SuiteransLoggerManager
+SLM = LoggedFunction
 logger = getLogger()
 formatter = SuiteransFormatter(
     '{levelname:<8}| {message}', style = '{'
