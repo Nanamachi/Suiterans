@@ -25,7 +25,7 @@ ui.setupUi(window)
 def call_main():
 
     ui.actionExit.triggered.connect(app.quit)
-    logger.debug('--------Suiterans: Simutrans pak manager--------')
+    logger.critical('--------Suiterans: Simutrans pak manager--------')
 
     vwr = Viewer()
 
@@ -159,7 +159,7 @@ class Viewer():
                 self.append_paksuite(newps)
                 status = 'success'
             except FileExistsError:
-                logger.info('PakSuite name duplicates.')
+                logger.info('INFO    | PakSuite name duplicates.')
                 a = statusdiag.question(
                     statusdiag,
                     _translate('InputDialog', 'PakSuite already exists'),
@@ -182,7 +182,7 @@ class Viewer():
                     status = 'cancel'
 
             except NotPakSuiteError:
-                logger.info('Selected folder is not a PakSuite folder.')
+                logger.info('INFO    | Selected folder is not a PakSuite folder.')
                 status = 'NotPS'
         else:
             status = 'cancel'
@@ -251,7 +251,8 @@ try:
 
 except Exception as e:
     logger.critical(
-        "Unexpected error occured. Program Stop...\n{}: {}"
+        "CRITICAL| Unexpected error occured. Program Stop...\n"\
+        + "        | {}: {}"
         .format(type(e), e.args)
     )
     raise

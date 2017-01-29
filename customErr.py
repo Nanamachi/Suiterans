@@ -1,52 +1,72 @@
 # -*- coding: utf-8 -*-
 from loginit import *
 
-class FormatError(Exception):
+class LoggedException(Exception):
+    def __init__(self, *arg):
+        self.log()
+        super().__init__(*arg)
+    def log(self):
+        logger.error("ERROR   | {}"
+            .format(self.__repr__().replace('\n', '\n        | '))
+        )
+
+class FormatError(LoggedException):
     def __init__(self, fmt):
         self._fmt = fmt
-        logger.log(ERROR, self.__repr__())
+        self.message = "Cannot recognize {} format.".format(self._fmt)
+
+        super().__init__(self.message)
 
     def __repr__(self):
-        return "FormatError: Cannot recognize " + self._fmt + " format."
+        return "FormatError: " + self.message
 
-class StreamTooShortError(Exception):
+class StreamTooShortError(LoggedException):
     def __init__(self, rest, fmt):
         self._rest = rest
         self._fmt  = fmt
-        logger.log(ERROR, self.__repr__())
+        self.message =\
+            "Stream size {} is too short to read {}."\
+            .format(self._rest, self._fmt)
+
+        super().__init__(self.__repr__())
 
     def __repr__(self):
         return "StreamTooShortError: "\
-            + "Stream size " + str(self.rest)\
-            + " is too short to read " + self.fmt
 
-class StreamTooLongError(Exception):
+class StreamTooLongError(LoggedException):
     def __init__(self, diff, v):
         self._diff = diff
         self._v  = v
-        logger.log(ERROR, self.__repr__())
+        self.message = \
+            "Given byte-len doesn't match with known byte-len.\n"\
+            + "Maybe the version {} is too new to read.\n"\
+            + "Diff to known byte-len is {}"\
+            .format(str(self._v), str(self._diff))
+
+        super().__init__(self.__repr__())
 
     def __repr__(self):
-        return "StreamTooLongError: "\
-            + "Given byte-len doesn't match with known byte-len.\n"\
-            + "Maybe the version " + str(self._v) + " is too new to read.\n"\
-            + "Diff to known byte-len is " + str(self._diff)
+        return "StreamTooLongError: " + self.message
 
-class NotPakSuiteError(Exception):
+class NotPakSuiteError(LoggedException):
     def __init__(self, dirname):
         self._dirname = dirname
-        logger.log(ERROR, self.__repr__())
+        self.message = \
+            "{} doesn't seem to be a Simutrans pak folder."\
+            .format(self._dirname)
+
+        super().__init__(self.__repr__())
 
     def __repr__(self):
-        return "NotPakSuiteError: "\
-        + self._dirname + " doesn't seem to be a Simutrans pak folder."
+        return "NotPakSuiteError: " + self.message
 
-class NodeNotFoundError(Exception):
+class NodeNotFoundError(LoggedException):
     def __init__(self, obj, typ):
         self._obj = obj
         self._typ = typ
-        logger.log(ERROR, self.__repr__())
+        self.message = "{} doesn't have {}Node.".format(self._obj, self._typ)
+
+        super().__init__(self.__repr__())
 
     def __repr__(self):
-        return "NodeNotFoundError: "\
-        + str(self._obj) + " doesn't have " + self._typ + 'Node.'
+        return "NodeNotFoundError: " + self.message

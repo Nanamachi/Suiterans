@@ -30,13 +30,15 @@ class PakFile(): #read .pak and extract into PakNode instance
             _fp.close()
         except Exception as e:
             logger.critical(
-                "Unexpected error occured while spawning PakFile {}.\n{}: {}"
-                .format(self.name, type(e), e.args)
+                "CRITICAL| Unexpected error occured while spawning PakFile {}.\n"
+                .format(self.name)
+                + "        | {}: {}"
+                .format(type(e), e.args)
             )
             raise
 
     def __repr__ (self):
-        return "<Simutrans Pak File '{}'>".format(self.path)
+        return "<Simutrans Pak File '{}'>".format(self.name)
 
 class PakNode():
     def __init__(self, fp, parent = None): #read data from binary and spawn child Nodes
@@ -52,17 +54,17 @@ class PakNode():
         elif isinstance(parent, PakNode):
             self.pakfile = parent.pakfile
         else:
-            logger.warning('{}Node has invalid parent.'.format(self.type))
+            logger.warning('WARNING | {}Node has invalid parent.'.format(self.type))
 
         try:
             self.read_data(fp)
         except StreamTooLongError:
             logger.error(
-                '{} is too long to read.\n'
+                'ERROR   | {} is too long to read.\n'
                 .format(self.__repr__())
-                + 'This occured while reading {}.\n'
+                + '        | This occured while reading {}.\n'
                 .format(self.pakfile)
-                + 'Skipping surplus bytes...'
+                + '        | Skipping surplus bytes...'
             )
             fp.seek(self.remain_len, 1)
 
@@ -239,8 +241,10 @@ class PakNode():
             except IndexError:
                 ret = None
                 logger.error(
-                    "{} has no desc {}. \n{} contains this node."
-                    .format(self.__repr__(), number, self.pakfile.name)
+                    "ERROR   | {} has no desc {}. \n"
+                    .format(self.__repr__(), number)
+                    + "        | {} contains this node."
+                    .format(self.pakfile.name)
                 )
             return ret
 
