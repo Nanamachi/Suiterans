@@ -1,16 +1,7 @@
 # -*- coding: utf-8 -*-
 from loginit import *
 
-class LoggedException(Exception):
-    def __init__(self, *arg):
-        self.log()
-        super().__init__(*arg)
-    def log(self):
-        logger.error("ERROR   | {}"
-            .format(self.__repr__().replace('\n', '\n        | '))
-        )
-
-class FormatError(LoggedException):
+class FormatError(Exception):
     def __init__(self, fmt):
         self._fmt = fmt
         self.message = "Cannot recognize {} format.".format(self._fmt)
@@ -20,7 +11,7 @@ class FormatError(LoggedException):
     def __repr__(self):
         return "FormatError: " + self.message
 
-class StreamTooShortError(LoggedException):
+class StreamTooShortError(Exception):
     def __init__(self, rest, fmt):
         self._rest = rest
         self._fmt  = fmt
@@ -33,7 +24,7 @@ class StreamTooShortError(LoggedException):
     def __repr__(self):
         return "StreamTooShortError: "\
 
-class StreamTooLongError(LoggedException):
+class StreamTooLongError(Exception):
     def __init__(self, diff, v):
         self._diff = diff
         self._v  = v
@@ -48,7 +39,7 @@ class StreamTooLongError(LoggedException):
     def __repr__(self):
         return "StreamTooLongError: " + self.message
 
-class NotPakSuiteError(LoggedException):
+class NotPakSuiteError(Exception):
     def __init__(self, dirname):
         self._dirname = dirname
         self.message = \
@@ -60,7 +51,7 @@ class NotPakSuiteError(LoggedException):
     def __repr__(self):
         return "NotPakSuiteError: " + self.message
 
-class NodeNotFoundError(LoggedException):
+class NodeNotFoundError(Exception):
     def __init__(self, obj, typ):
         self._obj = obj
         self._typ = typ

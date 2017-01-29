@@ -29,12 +29,7 @@ class PakFile(): #read .pak and extract into PakNode instance
 
             _fp.close()
         except Exception as e:
-            logger.critical(
-                "CRITICAL| Unexpected error occured while spawning PakFile {}.\n"
-                .format(self.name)
-                + "        | {}: {}"
-                .format(type(e), e.args)
-            )
+            logger.exception(e)
             raise
 
     def __repr__ (self):
@@ -54,17 +49,17 @@ class PakNode():
         elif isinstance(parent, PakNode):
             self.pakfile = parent.pakfile
         else:
-            logger.warning('WARNING | {}Node has invalid parent.'.format(self.type))
+            logger.warning('{}Node has invalid parent.'.format(self.type))
 
         try:
             self.read_data(fp)
         except StreamTooLongError:
             logger.error(
-                'ERROR   | {} is too long to read.\n'
+                '{} is too long to read.\n'
                 .format(self.__repr__())
-                + '        | This occured while reading {}.\n'
+                + 'This occured while reading {}.\n'
                 .format(self.pakfile)
-                + '        | Skipping surplus bytes...'
+                + 'Skipping surplus bytes...'
             )
             fp.seek(self.remain_len, 1)
 
@@ -241,9 +236,9 @@ class PakNode():
             except IndexError:
                 ret = None
                 logger.error(
-                    "ERROR   | {} has no desc {}. \n"
+                    "{} has no desc {}. \n"
                     .format(self.__repr__(), number)
-                    + "        | {} contains this node."
+                    + "{} contains this node."
                     .format(self.pakfile.name)
                 )
             return ret
