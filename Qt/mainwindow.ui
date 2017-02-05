@@ -147,7 +147,7 @@
   </widget>
   <action name="actionOpen_pak_files">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
     <string>Open .pak files</string>

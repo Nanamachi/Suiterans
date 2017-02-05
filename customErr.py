@@ -55,7 +55,7 @@ class NotPakFileError(Exception):
     def __init__(self, filename):
         self._filename = filename
         self.message = \
-            "{} doesn't is not proper Simutrans pak file."\
+            "{} is not proper Simutrans pak file."\
             .format(self._filename)
 
         super().__init__(self.__repr__())

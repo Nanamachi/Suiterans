@@ -37,6 +37,21 @@ class Viewer(QW.QMainWindow):
             self.ui.folderlist.doubleClicked.connect(
                 SLM('Viewer', self.show_paksuite)
             )
+
+            self.ui.actionAdd_Simutrans_pak_folder.triggered.connect(
+                SLM('Viewer', self.select_folder)
+            )
+            self.ui.actionOpen_pak_files.triggered.connect(
+                SLM('Viewer', self.select_file)
+            )
+            self.ui.actionExit.triggered.connect(app.quit)
+
+            self.ui.paklist.clicked.connect(
+                SLM('Viewer', self.show_obj)
+            )
+            self.ui.paklist.doubleClicked.connect(
+                SLM('Viewer', self.spawn_ntviewer)
+            )
         except Exception as e:
             logger.critical(
                 "Unexpected error occured. Program Stop...\n"\
@@ -46,19 +61,8 @@ class Viewer(QW.QMainWindow):
             logger.exception(e)
             raise
 
-        self.ui.actionAdd_Simutrans_pak_folder.triggered.connect(
-            SLM('Viewer', self.select_folder)
-        )
-        self.ui.actionExit.triggered.connect(app.quit)
-
-        self.ui.paklist.clicked.connect(
-            SLM('Viewer', self.show_obj)
-        )
-        self.ui.paklist.doubleClicked.connect(
-            SLM('Viewer', self.spawn_ntviewer)
-        )
-
-        logger.debug('Viewer successfully initialized.')
+        else:
+            logger.debug('Viewer successfully initialized.')
 
     def append_paksuite(self, ps):
         Qtps = QG.QStandardItem()
@@ -137,19 +141,30 @@ class Viewer(QW.QMainWindow):
         else:
             self.ui.ImgViewer.setText('NoImage')
 
+    def show_singlepak(self, pakf_path):
+        itemModel = QG.QStandardItemModel()
+        paksuite = core.SimplePakSuite(pakf_path)
+        item = QG.QStandardItem()
+        item.setData(paksuite)
+        itemModel.appendRow(item)
+        itemIndex = item.index()
+        self.show_paksuite(itemIndex)
+
+    def select_file(self, _):
+        dialog = QW.QFileDialog(self)
+        pakfile = dialog.getOpenFileName(
+            filter = _translate('InputDialog', "Simutrans pak file (*.pak)")
+        )
+        if pakfile[0] != '':
+            self.show_singlepak(pakfile[0])
+        return None
+
     def select_folder(self, _):
         dialog = QW.QFileDialog(self)
         pakfolder = dialog.getExistingDirectory()
         if pakfolder != '':
             ret = self.input_paksuite_name(pakfolder)
-        else:
-            ret = QW.QMessageBox(self)
-            ret.setText(_translate(
-                "InputDialog",
-                "Adding PakSuite is cancelled"
-            ))
-
-        ret.show()
+            ret.show()
 
         return None
 
@@ -327,30 +342,71 @@ class NodeTreeViewer(QW.QMainWindow):
             binaryViewer.ReadableBinary(obj).bin()
         )
 
-if not os.path.isdir('conf/'):
-    os.mkdir('conf/')
+def main():
 
-argparser = argparse.ArgumentParser(
-    description = "Simutrans PakFile Viewer & Manager."
-)
-argparser.add_argument('-d', '--debug',
-    help = "Select debug level. "\
-    + "1:DEBUG\n2:INFO\n3:WARNING(default)\n4:ERROR\n5:CRITICAL",
-    type = int,
-    choices = range(1,6)
-)
-args = argparser.parse_args()
-if args.debug != None:
-    handler.setLevel(args.debug * 10)
-    logger.setLevel(args.debug * 10)
+    global _translate
+    global app
+    global programFolder
 
-_translate = QC.QCoreApplication.translate
-translator = QC.QTranslator()
-translator.load('locale/Suiterans_ja')
-app = QW.QApplication(sys.argv)
-app.installTranslator(translator)
+    argparser = argparse.ArgumentParser(
+        description = "Simutrans PakFile Viewer & Manager."
+    )
+    argparser.add_argument('-d', '--debug',
+        help = "Select debug level. "\
+        + "1:DEBUG | 2:INFO | 3:WARNING(default) | 4:ERROR | 5:CRITICAL",
+        type = int,
+        choices = range(1,6)
+    )
+    argparser.add_argument('fname',
+        help = "pak file or config file to open.",
+        type = str,
+        nargs = '?'
+    )
 
-logger.debug('--------Suiterans: Simutrans pak manager--------')
-vwr = Viewer()
-vwr.show()
-sys.exit(app.exec_())
+    args = argparser.parse_args()
+
+    programFolder = sys.path[0]
+
+    if args.debug != None:
+        handler.setLevel(args.debug * 10)
+        logger.setLevel(args.debug * 10)
+
+    if not _op.isdir(_op.join(sys.path[0], 'conf/')):
+        os.mkdir(_op.join(sys.path[0], 'conf/'))
+
+    _translate = QC.QCoreApplication.translate
+    translator = QC.QTranslator()
+    translator.load(_op.join(sys.path[0], 'locale/Suiterans_ja'))
+    app = QW.QApplication(sys.argv)
+    app.installTranslator(translator)
+
+    logger.debug('--------Suiterans: Simutrans pak manager--------')
+
+    vwr = Viewer()
+    if args.fname == None:
+        pass
+    elif args.fname.endswith('.pak'):
+        vwr.show_singlepak(args.fname)
+
+    # elif args.fname.endswith('.conf'):
+    #     pass
+    else:
+        raise NotPakFileError(args.fname)
+
+    vwr.show()
+    app.exec_()
+
+try:
+    _op = os.path
+    main()
+except Exception as e:
+    logger.critical(
+        "Unexpected error occured. Program Stop...\n"\
+        + "{}: {}"
+        .format(type(e), e.args)
+    )
+    logger.exception(e)
+    raise
+else:
+    logger.debug('--------Suiterans was successfully closed.--------\n')
+    sys.exit()
