@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 import sys
+import math
 
 import PyQt5.QtGui as QG
 import PyQt5.QtCore as QC
 import PyQt5.QtWidgets as QW
 
 import lib
+from loginit import *
 
 def show_img(imgnode):
 
@@ -21,7 +23,24 @@ def show_img(imgnode):
 
     app.exec_()
 
-def paintobj(obj, size):
+def size_estimate(obj):
+    i = 0
+    s = 0
+    while obj.searchNode('IMG', i) != None:
+        imgnode = obj.searchNode('IMG', i)
+        s = max(
+            imgnode.x + imgnode.width,
+            imgnode.y + imgnode.height,
+            s
+        )
+        s = math.ceil(s/32) * 32
+        i += 1
+    return s
+
+def paintobj(obj, size = 0):
+
+    if size == 0:
+        size = size_estimate(obj)
 
     if obj.type == 'BUIL':
         qimg = QG.QImage(

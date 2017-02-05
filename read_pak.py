@@ -347,7 +347,7 @@ class IMGNode(PakNode):
         fp.seek(6,1)
         [self.version, _] = self.read_LE(fp, 'uint8', self.remain_len)
         fp.seek(-7,1)
-        for c in getattr(lib, self.type + 'param'):
+        for c in getattr(lib, 'IMGparam'):
             param = c(self.version)
             if param != None:
                 [val, self.remain_len] = self.read_LE(fp, param[1], self.remain_len)

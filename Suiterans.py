@@ -220,11 +220,13 @@ class Viewer(QW.QMainWindow):
         NodeTreeViewer(self, objIndex).show()
 
 class NodeTreeViewer(QW.QMainWindow):
-    def __init__(self, parent, objIndex):
+    def __init__(self, parent = None, objIndex = None):
 
         super().__init__(parent)
 
         self.index = objIndex
+        if parent != None:
+            self.size = parent.paksuite.size
 
         self.tvview = tv.Ui_TreeView()
         self.tvview.setupUi(self)
@@ -255,6 +257,29 @@ class NodeTreeViewer(QW.QMainWindow):
         self.treeModel = QG.QStandardItemModel()
         self.treeModel.appendRow(make_tree(obj))
         self.tvview.TreeViewer.setModel(self.treeModel)
+
+        self.objectModel = QG.QStandardItemModel(0,2)
+        for attr in lib.displayable_node:
+            if hasattr(obj, attr):
+                Qtpo = [QG.QStandardItem() for i in range(2)]
+                Qtpo[0].setText(_translate('parameter', attr))
+                Qtpo[1].setText(_translate('parameter', str(getattr(obj, attr))))
+
+                Qtpo[0].setEditable(False)
+                Qtpo[1].setEditable(False)
+                self.objectModel.appendRow(Qtpo)
+
+        self.tvview.ObjectView.setModel(self.objectModel)
+
+        if obj.type in lib.imaged_obj:
+            if self.parent() != None:
+                size = self.parent().paksuite.size
+            else:
+                size = 0
+            imgmap = painter.paintobj(obj, size)
+            self.tvview.ImageView.setPixmap(QG.QPixmap.fromImage(imgmap))
+        else:
+            self.tvview.ImageView.setText('NoImage')
 
         return None
 
@@ -288,7 +313,7 @@ class NodeTreeViewer(QW.QMainWindow):
         return None
 
     def show_node(self, objIndex):
-        obj = objIndex.model().itemFromIndex(objIndex).data()
+        obj = objIndex.data(0x0101)
         if getattr(obj, 'type') == 'IMG':
             imgmap = painter.paintobj(obj,128)
             self.tvview.Interpreter.setPixmap(QG.QPixmap.fromImage(imgmap))

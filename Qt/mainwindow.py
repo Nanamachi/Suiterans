@@ -91,6 +91,7 @@ class Ui_MainWindow(object):
         self.menuSuiterans_v1_0_0.setObjectName("menuSuiterans_v1_0_0")
         MainWindow.setMenuBar(self.menuBar)
         self.actionOpen_pak_files = QtWidgets.QAction(MainWindow)
+        self.actionOpen_pak_files.setEnabled(False)
         self.actionOpen_pak_files.setObjectName("actionOpen_pak_files")
         self.actionAdd_Simutrans_pak_folder = QtWidgets.QAction(MainWindow)
         self.actionAdd_Simutrans_pak_folder.setObjectName("actionAdd_Simutrans_pak_folder")
