@@ -1,1 +1,1 @@
-python Suiterans.py
+python Suiterans.py --debug 1

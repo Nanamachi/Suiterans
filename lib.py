@@ -1,4 +1,5 @@
 # -*- coding= utf-8 -*-
+VERSION = 'v0.4.0'
 
 translate = lambda x,y: y
 
@@ -340,9 +341,10 @@ IMGparam = (
     lambda v:  ('width',    'uint8',    lambda x: x)     if v < 3    else None,
     lambda v:  ('width',    'sint16',   lambda x: x)     if v > 2    else None,
     lambda v:  ('y',        'uint8',    lambda x: x)     if v== 0    else None,
+    lambda v:  ('_dummy',   'uint8',    lambda x: x)     if v > 2    else None,
     lambda v:  ('height',   'uint8',    lambda x: x)     if v < 3    else None,
     lambda v:  ('height',   'sint16',   lambda x: x)     if v > 2    else None,
-    lambda v:  ('_dummy',   'uint8',    lambda x: x)     if v > 0    else None,
+    lambda v:  ('_dummy',   'uint8',    lambda x: x)     if 3> v >0  else None,
     lambda v:  ('length',   'uint32',   lambda x: x)     if v== 0    else None,
     lambda v:  ('length',   'uint16',   lambda x: x)     if 3> v >0  else None,
     lambda v:  ('_dummy',   'uint16',   lambda x: x)     if v== 0    else None,

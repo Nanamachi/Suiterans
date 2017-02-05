@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(634, 395)
+        MainWindow.resize(708, 463)
         self.centralWidget = QtWidgets.QWidget(MainWindow)
         self.centralWidget.setEnabled(True)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
@@ -85,12 +85,13 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3.addLayout(self.gridLayout)
         MainWindow.setCentralWidget(self.centralWidget)
         self.menuBar = QtWidgets.QMenuBar(MainWindow)
-        self.menuBar.setGeometry(QtCore.QRect(0, 0, 634, 21))
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 708, 21))
         self.menuBar.setObjectName("menuBar")
         self.menuSuiterans_v1_0_0 = QtWidgets.QMenu(self.menuBar)
         self.menuSuiterans_v1_0_0.setObjectName("menuSuiterans_v1_0_0")
         MainWindow.setMenuBar(self.menuBar)
         self.actionOpen_pak_files = QtWidgets.QAction(MainWindow)
+        self.actionOpen_pak_files.setEnabled(True)
         self.actionOpen_pak_files.setObjectName("actionOpen_pak_files")
         self.actionAdd_Simutrans_pak_folder = QtWidgets.QAction(MainWindow)
         self.actionAdd_Simutrans_pak_folder.setObjectName("actionAdd_Simutrans_pak_folder")

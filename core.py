@@ -51,9 +51,19 @@ class PakSuite():
     def __repr__(self):
         return "<Suiterans PakSuite: " +self.path_main+ ">"
 
+class SimplePakSuite(PakSuite):
+    def __init__(self, pakf_path):
+        self.amount = 1
+        self.pak = []
+        self.load_each(pakf_path)
+        self.size = 0
+
+    def get_amount(self):
+        return 1
+
 def read_paksuites():
     paksuites = []
-    configfs = glob.glob('conf/*.conf')
+    configfs = glob.glob(_op.join(sys.path[0], 'conf/*.conf'))
     for configfn in configfs:
         paksuites.append(read_paksuite(configfn))
 
@@ -69,7 +79,7 @@ def read_paksuite(configfn):
     return PakSuite(configs['dir'], configs['name'], configs['singleuser'])
 
 def write_paksuite(name, path, overwrite = False):
-    configfn = _op.join('conf/', name + '.conf')
+    configfn = _op.join(sys.path[0], 'conf/', name + '.conf')
     if _op.exists(configfn) and not overwrite:
         raise FileExistsError(configfn)
     else:
@@ -98,7 +108,7 @@ def write_paksuite(name, path, overwrite = False):
     return read_paksuite(configfn)
 
 def delete_paksuite(name):
-    configfn = _op.join('conf/', name + '.conf')
+    configfn = _op.join(sys.path[0], 'conf/', name + '.conf')
     os.remove(configfn)
 
 def check_paksuite(path):
