@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>634</width>
-    <height>395</height>
+    <width>708</width>
+    <height>463</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -130,7 +130,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>634</width>
+     <width>708</width>
      <height>21</height>
     </rect>
    </property>
@@ -146,6 +146,9 @@
    <addaction name="menuSuiterans_v1_0_0"/>
   </widget>
   <action name="actionOpen_pak_files">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Open .pak files</string>
    </property>
