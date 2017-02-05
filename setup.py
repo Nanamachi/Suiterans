@@ -10,9 +10,6 @@ options = {
     'optimize' : 2,
     'includes' : ['sip',],
     'build_exe' : 'Suiterans',
-    # 'include_files' :\
-    #     "D:\\Program Files\\Python\\Lib\\site-packages"\
-    #     + "\\PyQt5\\Qt\\plugins\\platforms\\qwindows.dll"
     'include_files' : "locale/",
 }
 
