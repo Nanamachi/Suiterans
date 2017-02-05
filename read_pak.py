@@ -98,6 +98,10 @@ class PakNode():
             self.name   = self.child[0].name
             self.author = self.child[0].author
 
+        curs = self.searchNode('CURS')
+        if curs != None:
+            self.icon = curs.desc(2,1)
+
         return None
 
     def __repr__(self):
@@ -110,7 +114,7 @@ class PakNode():
         else:
             return "<Simutrans {} Node>".format(self.type)
 
-    def read_LE(self, fp, fmt, rest): #read Liettle Endian format
+    def read_LE(self, fp, fmt, rest): #read Little Endian format
         if fmt == 'uint8':
             packfmt = '<B'
             packlen = 1
@@ -133,7 +137,7 @@ class PakNode():
             #unsigned fixed point
             #ex.) 'ufix0816' means '0xAB.CD'
             #this func return the value multiplied 100 'cause
-            #ufix format mostly used percent format.
+            #ufix format usually used percent format.
             packlen = int(fmt[6:8]) >> 3
             shamt = int(fmt[4:6])
             if packlen == 1:
@@ -246,22 +250,32 @@ class PakNode():
                 )
             return ret
 
-    def searchNode(self, obj, typ, pos = 0):
-        for c in obj.child:
-            if c.type == typ and pos == 0:
-                ret = c
-                break
-            elif c.type == typ:
-                pos -= 1
-            elif c.child_count != 0:
-                pos = self.searchNode(c, typ, pos)
-                if type(pos) != int:
-                    ret = pos
-                    break
-        else:
-            ret = pos
+    def searchNode(self, typ, pos = 0):
 
-        return ret
+        def searchChild(obj, typ, pos):
+
+            for c in obj.child:
+                if c.type == typ and pos == 0:
+                    ret = c
+                    break
+                elif c.type == typ:
+                    pos -= 1
+                elif c.child_count != 0:
+                    pos = searchChild(c, typ, pos)
+                    if type(pos) != int:
+                        ret = pos
+                        break
+            else:
+                ret = pos
+
+            return ret
+
+        r = searchChild(self, typ, pos)
+
+        if type(r) == int:
+            r = None
+
+        return r
 
 class BRDGNode(PakNode):
     def read_data(self, fp):

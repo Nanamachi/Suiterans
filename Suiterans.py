@@ -69,7 +69,7 @@ class Viewer(QW.QMainWindow):
 
     def show_paksuite(self,paksuiteIndex):
 
-        self.paksuite = paksuiteIndex.model().item(paksuiteIndex.row()).data()
+        self.paksuite = paksuiteIndex.data(0x0101)
 
         header_model = QG.QStandardItemModel(0,3)
         header_list = [QG.QStandardItem() for i in range(3)]
@@ -116,7 +116,7 @@ class Viewer(QW.QMainWindow):
         self.ui.progressBar.setValue(0)
 
     def show_obj(self,objIndex):
-        obj = objIndex.model().item(objIndex.row()).data()
+        obj = objIndex.data(0x0101)
 
         obj_model = QG.QStandardItemModel(0,2)
         for attr in lib.displayable_node:
@@ -224,6 +224,24 @@ class NodeTreeViewer(QW.QMainWindow):
 
         super().__init__(parent)
 
+        self.index = objIndex
+
+        self.tvview = tv.Ui_TreeView()
+        self.tvview.setupUi(self)
+        self.set_model()
+
+        self.tvview.TreeViewer.clicked.connect(
+            SLM('TreeViewer', self.show_node)
+        )
+        self.tvview.buttonNext.clicked.connect(
+            SLM('TreeViewer', self.set_next)
+        )
+        self.tvview.buttonPrev.clicked.connect(
+            SLM('TreeViewer', self.set_prev)
+        )
+
+    def set_model(self):
+
         def make_tree(obj):
             ret = QG.QStandardItem()
             ret.setText(obj.type)
@@ -233,21 +251,41 @@ class NodeTreeViewer(QW.QMainWindow):
                 ret.appendRow(make_tree(c))
             return ret
 
-        obj = objIndex.model().item(objIndex.row()).data()
-        model = QG.QStandardItemModel()
-        model.appendRow(make_tree(obj))
+        obj = self.index.data(0x0101)
+        self.treeModel = QG.QStandardItemModel()
+        self.treeModel.appendRow(make_tree(obj))
+        self.tvview.TreeViewer.setModel(self.treeModel)
 
-        self.tvview = tv.Ui_TreeView()
-        self.tvview.setupUi(self)
-        self.tvview.TreeViewer.setModel(model)
-        self.setSizePolicy(QW.QSizePolicy(
-            QW.QSizePolicy.Preferred,
-            QW.QSizePolicy.Preferred
-        ))
+        return None
 
-        self.tvview.TreeViewer.clicked.connect(
-            SLM('TreeViewer', self.show_node)
+    def set_next(self,*_):
+        ix = self.index.sibling(
+            self.index.row() + 1,
+            self.index.column()
         )
+        if not ix.isValid():
+            self.index = self.index.sibling(0, self.index.column())
+        else:
+            self.index = ix
+
+        self.set_model()
+        return None
+
+    def set_prev(self,*_):
+        ix = self.index.sibling(
+            self.index.row() - 1,
+            self.index.column()
+        )
+        if not ix.isValid():
+            self.index = self.index.sibling(
+                self.index.model().rowCount() - 1,
+                self.index.column()
+            )
+        else:
+            self.index = ix
+
+        self.set_model()
+        return None
 
     def show_node(self, objIndex):
         obj = objIndex.model().itemFromIndex(objIndex).data()

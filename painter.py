@@ -35,27 +35,27 @@ def paintobj(obj, size):
     qimg.fill(bgcol)
 
     if   obj.type == 'CRSS':
-        paint(qimg, obj.searchNode(obj,'IMG1',0).desc(0), QC.QPoint(0,0))
-        paint(qimg, obj.searchNode(obj,'IMG1',2).desc(0), QC.QPoint(0,0))
+        paint(qimg, obj.searchNode('IMG1',0).desc(0), QC.QPoint(0,0))
+        paint(qimg, obj.searchNode('IMG1',2).desc(0), QC.QPoint(0,0))
     elif obj.type == 'BRDG':
-        paint(qimg, obj.searchNode(obj,'IMG1',0).desc(3), QC.QPoint(0,0))
-        paint(qimg, obj.searchNode(obj,'IMG1',1).desc(3), QC.QPoint(0,0))
+        paint(qimg, obj.searchNode('IMG1',0).desc(3), QC.QPoint(0,0))
+        paint(qimg, obj.searchNode('IMG1',1).desc(3), QC.QPoint(0,0))
     elif obj.type == 'TUNL':
-        paint(qimg, obj.searchNode(obj,'IMG1',0).desc(0), QC.QPoint(0,0))
-        paint(qimg, obj.searchNode(obj,'IMG1',1).desc(0), QC.QPoint(0,0))
+        paint(qimg, obj.searchNode('IMG1',0).desc(0), QC.QPoint(0,0))
+        paint(qimg, obj.searchNode('IMG1',1).desc(0), QC.QPoint(0,0))
     elif obj.type == 'WYOB':
-        paint(qimg, obj.searchNode(obj,'IMG1',1).desc(5), QC.QPoint(0,0))
-        paint(qimg, obj.searchNode(obj,'IMG1',0).desc(5), QC.QPoint(0,0))
+        paint(qimg, obj.searchNode('IMG1',1).desc(5), QC.QPoint(0,0))
+        paint(qimg, obj.searchNode('IMG1',0).desc(5), QC.QPoint(0,0))
     elif obj.type == 'WAY' :
-        paint(qimg, obj.searchNode(obj,'IMG1',0).desc(5), QC.QPoint(0,0))
-        frontimg = obj.searchNode(obj, 'IMG1',7)
-        if getattr(frontimg, 'type', '') == 'IMG1':
+        paint(qimg, obj.searchNode('IMG1',0).desc(5), QC.QPoint(0,0))
+        frontimg = obj.searchNode('IMG1',7)
+        if frontimg != None:
             paint(qimg, frontimg.desc(5), QC.QPoint(0,0))
 
     elif obj.type == 'BUIL':
         for i in range(obj.size_y):
             for j in range(obj.size_x):
-                tile = obj.searchNode(obj, 'TILE', i*obj.size_x + j)
+                tile = obj.searchNode('TILE', i*obj.size_x + j)
                 origpos = QC.QPoint(
                     size / 2 * (obj.size_y - i + j - 1),
                     size / 4 * (i + j)
@@ -64,12 +64,12 @@ def paintobj(obj, size):
                 if obj.u_type in [33,34]:
                     paint(qimg, tile.desc(1,0,0), origpos)
     elif obj.type == 'FACT':
-        qimg = paintobj(obj.searchNode(obj, 'BUIL'), size)
+        qimg = paintobj(obj.searchNode('BUIL'), size)
 
     elif obj.type == 'IMG':
         qimg = paint(qimg, obj, QC.QPoint(0,0))
     else:
-        paint(qimg, obj.searchNode(obj, 'IMG'), QC.QPoint(0,0))
+        paint(qimg, obj.searchNode('IMG'), QC.QPoint(0,0))
 
     return qimg
 
