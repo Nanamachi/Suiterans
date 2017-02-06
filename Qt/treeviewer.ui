@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Suiterans Tree Viewer</string>
+   <string>Suiterans Object Viewer</string>
   </property>
   <property name="autoFillBackground">
    <bool>false</bool>

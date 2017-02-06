@@ -1,5 +1,5 @@
 # -*- coding= utf-8 -*-
-VERSION = 'v0.4.0'
+VERSION = 'v1.0.0'
 
 translate = lambda x,y: y
 

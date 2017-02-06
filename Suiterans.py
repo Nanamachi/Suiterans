@@ -379,6 +379,7 @@ def main():
     translator.load(_op.join(sys.path[0], 'locale/Suiterans_ja'))
     app = QW.QApplication(sys.argv)
     app.installTranslator(translator)
+    app.setWindowIcon(QG.QIcon(_op.join(sys.path[0],'resources/Suiterans.ico')))
 
     logger.debug('--------Suiterans: Simutrans pak manager--------')
 

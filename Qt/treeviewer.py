@@ -115,7 +115,7 @@ class Ui_TreeView(object):
 
     def retranslateUi(self, TreeView):
         _translate = QtCore.QCoreApplication.translate
-        TreeView.setWindowTitle(_translate("TreeView", "Suiterans Tree Viewer"))
+        TreeView.setWindowTitle(_translate("TreeView", "Suiterans Object Viewer"))
         self.buttonPrev.setText(_translate("TreeView", "Prev"))
         self.buttonPrev.setShortcut(_translate("TreeView", "Ctrl+B"))
         self.buttonNext.setText(_translate("TreeView", "Next"))
