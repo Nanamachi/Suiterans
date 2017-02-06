@@ -34,6 +34,14 @@ class Viewer(QW.QMainWindow):
             for ps in core.read_paksuites():
                 self.append_paksuite(ps)
             self.ui.folderlist.setModel(self.paksuites_model)
+
+            header_model = QG.QStandardItemModel(0,3)
+            header_list = [QG.QStandardItem() for i in range(3)]
+            for i, c in enumerate(['type', 'object name', 'file name']):
+                header_list[i].setText(c)
+            header_model.appendRow(header_list)
+            self.ui.paklist.horizontalHeader().setModel(header_model)
+
             self.ui.folderlist.doubleClicked.connect(
                 SLM('Viewer', self.show_paksuite)
             )
@@ -68,25 +76,16 @@ class Viewer(QW.QMainWindow):
         Qtps = QG.QStandardItem()
         Qtps.setText(ps.name + ' | ' + str(ps.amount) + ' pak files')
         Qtps.setData(ps)
-        Qtps.setEditable(False)
         self.paksuites_model.appendRow(Qtps)
 
     def show_paksuite(self,paksuiteIndex):
 
         self.paksuite = paksuiteIndex.data(0x0101)
 
-        header_model = QG.QStandardItemModel(0,3)
-        header_list = [QG.QStandardItem() for i in range(3)]
-        for i, c in enumerate(['type', 'object name', 'file name']):
-            header_list[i].setText(c)
-
-        header_model.appendRow(header_list)
-        self.ui.paklist.horizontalHeader().setModel(header_model)
-
-        self.ui.progressBar.setMaximum(self.paksuite.amount)
         if not hasattr(self.paksuite, 'pak') \
             or self.paksuite.get_amount() != self.paksuite.amount:
             self.paksuite.amount = self.paksuite.get_amount()
+            self.ui.progressBar.setMaximum(self.paksuite.amount)
             self.paksuite.pak = []
             for i, pakf_path in\
                 enumerate(glob.glob(self.paksuite.path_main + '\\*.pak')):
@@ -102,22 +101,22 @@ class Viewer(QW.QMainWindow):
         for pakfile in self.paksuite.pak:
             for obj in pakfile.root.child:
                 Qtpf = [QG.QStandardItem() for i in range(3)]
+
                 Qtpf[0].setText(obj.type)
                 if hasattr(obj, 'name'):
                     Qtpf[1].setText(obj.name)
                 Qtpf[2].setText(pakfile.name)
 
-                Qtpf[0].setData(obj)
-                Qtpf[1].setData(obj)
-                Qtpf[2].setData(obj)
+                for i in range(3):
+                    Qtpf[i].setData(obj)
 
-                Qtpf[0].setEditable(False)
-                Qtpf[1].setEditable(False)
-                Qtpf[2].setEditable(False)
                 paklists_model.appendRow(Qtpf)
 
         self.ui.paklist.setModel(paklists_model)
         self.ui.progressBar.setValue(0)
+
+        for i in range(3):
+            self.ui.paklist.resizeColumnToContents(i)
 
     def show_obj(self,objIndex):
         obj = objIndex.data(0x0101)
@@ -296,6 +295,13 @@ class NodeTreeViewer(QW.QMainWindow):
         else:
             self.tvview.ImageView.setText('NoImage')
 
+        ico = getattr(obj, 'icon', None)
+        if ico != None:
+            imgmap = painter.paintobj(ico, 32)
+            self.tvview.IconView.setPixmap(QG.QPixmap.fromImage(imgmap))
+        else:
+            self.tvview.IconView.setText('')
+
         return None
 
     def set_next(self,*_):
@@ -330,7 +336,7 @@ class NodeTreeViewer(QW.QMainWindow):
     def show_node(self, objIndex):
         obj = objIndex.data(0x0101)
         if getattr(obj, 'type') == 'IMG':
-            imgmap = painter.paintobj(obj,128)
+            imgmap = painter.paintobj(obj,self.size)
             self.tvview.Interpreter.setPixmap(QG.QPixmap.fromImage(imgmap))
         elif getattr(obj, 'type') == 'TEXT':
             self.tvview.Interpreter.setText(obj.text)
