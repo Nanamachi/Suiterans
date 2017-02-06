@@ -6,6 +6,7 @@ import argparse
 import PyQt5.QtWidgets as QW
 import PyQt5.QtCore as QC
 import PyQt5.QtGui as QG
+import PyQt5 as Qt
 
 import Qt.mainwindow as wi
 import Qt.treeviewer as tv
@@ -22,55 +23,59 @@ class Viewer(QW.QMainWindow):
 
         logger.debug('Viewer init start...')
 
-        try:
-            super().__init__()
+        super().__init__()
 
-            self.windows = []
+        self.ui = wi.Ui_MainWindow()
+        self.ui.setupUi(self)
 
-            self.ui = wi.Ui_MainWindow()
-            self.ui.setupUi(self)
+        self.paksuites_model = QG.QStandardItemModel(0,1)
+        for ps in core.read_paksuites():
+            self.append_paksuite(ps)
+        self.ui.folderlist.setModel(self.paksuites_model)
 
-            self.paksuites_model = QG.QStandardItemModel(0,1)
-            for ps in core.read_paksuites():
-                self.append_paksuite(ps)
-            self.ui.folderlist.setModel(self.paksuites_model)
+        header_model = QG.QStandardItemModel(0,3)
+        header_list = [QG.QStandardItem() for i in range(3)]
+        for i, c in enumerate(['type', 'object name', 'file name']):
+            header_list[i].setText(c)
+        header_model.appendRow(header_list)
+        self.ui.paklist.horizontalHeader().setModel(header_model)
 
-            header_model = QG.QStandardItemModel(0,3)
-            header_list = [QG.QStandardItem() for i in range(3)]
-            for i, c in enumerate(['type', 'object name', 'file name']):
-                header_list[i].setText(c)
-            header_model.appendRow(header_list)
-            self.ui.paklist.horizontalHeader().setModel(header_model)
+        self.ui.actionAdd_Simutrans_pak_folder.triggered.connect(
+            SLM('Viewer', self.select_folder)
+        )
+        self.ui.actionOpen_pak_files.triggered.connect(
+            SLM('Viewer', self.select_file)
+        )
+        self.ui.actionExit.triggered.connect(app.quit)
 
-            self.ui.folderlist.doubleClicked.connect(
-                SLM('Viewer', self.show_paksuite)
-            )
+        actionHighlight = QW.QActionGroup(self)
+        actionHighlight.addAction(self.ui.action_None)
+        actionHighlight.addAction(self.ui.actionConflicting)
+        actionHighlight.addAction(self.ui.actionDuplicating)
+        self.ui.action_None.triggered.connect(
+            SLM('Viewer', self.setHighlight, 'None')
+        )
+        self.ui.actionConflicting.triggered.connect(
+            SLM('Viewer', self.setHighlight, 'Conflicting')
+        )
+        self.ui.actionDuplicating.triggered.connect(
+            SLM('Viewer', self.setHighlight, 'Duplicating')
+        )
+        self.setHighlight('None')
+        self.ui.action_None.setChecked(True)
 
-            self.ui.actionAdd_Simutrans_pak_folder.triggered.connect(
-                SLM('Viewer', self.select_folder)
-            )
-            self.ui.actionOpen_pak_files.triggered.connect(
-                SLM('Viewer', self.select_file)
-            )
-            self.ui.actionExit.triggered.connect(app.quit)
+        self.ui.folderlist.doubleClicked.connect(
+        SLM('Viewer', self.show_paksuite)
+        )
 
-            self.ui.paklist.clicked.connect(
-                SLM('Viewer', self.show_obj)
-            )
-            self.ui.paklist.doubleClicked.connect(
-                SLM('Viewer', self.spawn_ntviewer)
-            )
-        except Exception as e:
-            logger.critical(
-                "Unexpected error occured. Program Stop...\n"\
-                + "{}: {}"
-                .format(type(e), e.args)
-            )
-            logger.exception(e)
-            raise
+        self.ui.paklist.clicked.connect(
+            SLM('Viewer', self.show_obj)
+        )
+        self.ui.paklist.doubleClicked.connect(
+            SLM('Viewer', self.spawn_ntviewer)
+        )
 
-        else:
-            logger.debug('Viewer successfully initialized.')
+        logger.debug('Viewer successfully initialized.')
 
     def append_paksuite(self, ps):
         Qtps = QG.QStandardItem()
@@ -80,7 +85,7 @@ class Viewer(QW.QMainWindow):
 
     def show_paksuite(self,paksuiteIndex):
 
-        self.paksuite = paksuiteIndex.data(0x0101)
+        self.paksuite = paksuiteIndex.data(QC.Qt.UserRole | 0x01)
 
         if not hasattr(self.paksuite, 'pak') \
             or self.paksuite.get_amount() != self.paksuite.amount:
@@ -100,37 +105,33 @@ class Viewer(QW.QMainWindow):
 
         for pakfile in self.paksuite.pak:
             for obj in pakfile.root.child:
-                Qtpf = [QG.QStandardItem() for i in range(3)]
+                item = []
+                for s in [obj.type, obj.name, pakfile.name]:
+                    item.append(QG.QStandardItem(s))
+                    item[-1].setData(obj)
 
-                Qtpf[0].setText(obj.type)
-                if hasattr(obj, 'name'):
-                    Qtpf[1].setText(obj.name)
-                Qtpf[2].setText(pakfile.name)
-
-                for i in range(3):
-                    Qtpf[i].setData(obj)
-
-                paklists_model.appendRow(Qtpf)
+                paklists_model.appendRow(item)
 
         self.ui.paklist.setModel(paklists_model)
+        self.draw_highlight()
         self.ui.progressBar.setValue(0)
 
         for i in range(3):
             self.ui.paklist.resizeColumnToContents(i)
 
     def show_obj(self,objIndex):
-        obj = objIndex.data(0x0101)
+        obj = objIndex.data(QC.Qt.UserRole | 0x01)
 
         obj_model = QG.QStandardItemModel(0,2)
         for attr in lib.displayable_node:
             if hasattr(obj, attr):
-                Qtpo = [QG.QStandardItem() for i in range(2)]
-                Qtpo[0].setText(_translate('parameter', attr))
-                Qtpo[1].setText(_translate('parameter', str(getattr(obj, attr))))
+                row = [QG.QStandardItem() for i in range(2)]
+                row[0].setText(_tr('parameter', attr))
+                row[1].setText(_tr('parameter', str(getattr(obj, attr))))
 
-                Qtpo[0].setEditable(False)
-                Qtpo[1].setEditable(False)
-                obj_model.appendRow(Qtpo)
+                row[0].setEditable(False)
+                row[1].setEditable(False)
+                obj_model.appendRow(row)
 
         self.ui.pakinfo.setModel(obj_model)
 
@@ -152,7 +153,7 @@ class Viewer(QW.QMainWindow):
     def select_file(self, _):
         dialog = QW.QFileDialog(self)
         pakfile = dialog.getOpenFileName(
-            filter = _translate('InputDialog', "Simutrans pak file (*.pak)")
+            filter = _tr('InputDialog', "Simutrans pak file (*.pak)")
         )
         if pakfile[0] != '':
             self.show_singlepak(pakfile[0])
@@ -173,8 +174,8 @@ class Viewer(QW.QMainWindow):
         dialog = QW.QInputDialog(self)
         name, isAdd = dialog.getText(
             dialog,
-            _translate("InputDialog", 'Add New pak Suite...'),
-            _translate("InputDialog", 'Please write new pak Suite name'),
+            _tr("InputDialog", 'Add New pak Suite...'),
+            _tr("InputDialog", 'Please write new pak Suite name'),
             QW.QLineEdit.Normal,
             name
         )
@@ -187,8 +188,8 @@ class Viewer(QW.QMainWindow):
                 logger.info('PakSuite name duplicates.')
                 a = statusdiag.question(
                     statusdiag,
-                    _translate('InputDialog', 'PakSuite already exists'),
-                    _translate(
+                    _tr('InputDialog', 'PakSuite already exists'),
+                    _tr(
                         'InputDialog',
                         "PakSuite '{}' already exists. Overwrite?"
                     ).format(name),
@@ -213,17 +214,17 @@ class Viewer(QW.QMainWindow):
             status = 'cancel'
 
         if status == 'cancel':
-            statusdiag.setText(_translate(
+            statusdiag.setText(_tr(
                 "InputDialog",
                 "Adding PakSuite is cancelled"
             ))
         elif status == 'success':
-            statusdiag.setText(_translate(
+            statusdiag.setText(_tr(
                 "InputDialog",
                 'PakSuite was successfully added.'
             ))
         elif status == 'NotPS':
-            statusdiag.setText(_translate(
+            statusdiag.setText(_tr(
                 "InputDialog",
                 "Folder {} is not Simutrans PakSuite Folder."
             ).format(name))
@@ -232,6 +233,47 @@ class Viewer(QW.QMainWindow):
 
     def spawn_ntviewer(self, objIndex):
         NodeTreeViewer(self, objIndex).show()
+
+    def setHighlight(self, mode, *_):
+        self._highlight = mode
+        if hasattr(self, 'paksuite'):
+            self.draw_highlight()
+
+    def draw_highlight(self):
+        m = self.ui.paklist.model()
+
+        if self._highlight == 'Duplicating':
+            for i in range(m.rowCount()):
+                index = m.index(i, 1)
+                searchres = m.match(
+                    index,
+                    0,
+                    m.data(index),
+                    hits = -1,
+                    flags = QC.Qt.MatchExactly,
+                )
+                for j,r1 in enumerate(searchres[:-1]):
+                    for r2 in searchres[j+1:]:
+                        idxes1 = [r1.sibling(r1.row(), k) for k in range(3)]
+                        idxes2 = [r1.sibling(r2.row(), k) for k in range(3)]
+                        if  idxes1[0].data()\
+                            == idxes2[0].data():
+                            for k in idxes1:
+                                m.itemFromIndex(k).setBackground(
+                                    QG.QBrush(QG.QColor(0xffccff))
+                                )
+                            for k in idxes2:
+                                m.itemFromIndex(k).setBackground(
+                                    QG.QBrush(QG.QColor(0xffccff))
+                                )
+
+        elif self._highlight == 'None':
+            for i in range(m.rowCount()):
+                index = [m.index(i,j) for j in range(3)]
+                for j in index:
+                    m.itemFromIndex(j).setBackground(
+                        QG.QBrush(QG.QColor('white'))
+                    )
 
 class NodeTreeViewer(QW.QMainWindow):
     def __init__(self, parent = None, objIndex = None):
@@ -267,7 +309,7 @@ class NodeTreeViewer(QW.QMainWindow):
                 ret.appendRow(make_tree(c))
             return ret
 
-        obj = self.index.data(0x0101)
+        obj = self.index.data(QC.Qt.UserRole | 0x01)
         self.treeModel = QG.QStandardItemModel()
         self.treeModel.appendRow(make_tree(obj))
         self.tvview.TreeViewer.setModel(self.treeModel)
@@ -276,8 +318,8 @@ class NodeTreeViewer(QW.QMainWindow):
         for attr in lib.displayable_node:
             if hasattr(obj, attr):
                 Qtpo = [QG.QStandardItem() for i in range(2)]
-                Qtpo[0].setText(_translate('parameter', attr))
-                Qtpo[1].setText(_translate('parameter', str(getattr(obj, attr))))
+                Qtpo[0].setText(_tr('parameter', attr))
+                Qtpo[1].setText(_tr('parameter', str(getattr(obj, attr))))
 
                 Qtpo[0].setEditable(False)
                 Qtpo[1].setEditable(False)
@@ -300,7 +342,7 @@ class NodeTreeViewer(QW.QMainWindow):
             imgmap = painter.paintobj(ico, 32)
             self.tvview.IconView.setPixmap(QG.QPixmap.fromImage(imgmap))
         else:
-            self.tvview.IconView.setText('')
+            self.tvview.IconView.setText(' ')
 
         return None
 
@@ -334,7 +376,7 @@ class NodeTreeViewer(QW.QMainWindow):
         return None
 
     def show_node(self, objIndex):
-        obj = objIndex.data(0x0101)
+        obj = objIndex.data(QC.Qt.UserRole | 0x01)
         if getattr(obj, 'type') == 'IMG':
             imgmap = painter.paintobj(obj,self.size)
             self.tvview.Interpreter.setPixmap(QG.QPixmap.fromImage(imgmap))
@@ -350,7 +392,7 @@ class NodeTreeViewer(QW.QMainWindow):
 
 def main():
 
-    global _translate
+    global _tr
     global app
     global programFolder
 
@@ -380,7 +422,7 @@ def main():
     if not _op.isdir(_op.join(sys.path[0], 'conf/')):
         os.mkdir(_op.join(sys.path[0], 'conf/'))
 
-    _translate = QC.QCoreApplication.translate
+    _tr = QC.QCoreApplication.translate
     translator = QC.QTranslator()
     translator.load(_op.join(sys.path[0], 'locale/Suiterans_ja'))
     app = QW.QApplication(sys.argv)
@@ -413,6 +455,7 @@ except Exception as e:
         .format(type(e), e.args)
     )
     logger.exception(e)
+    logger.debug('--------Suiterans was crashed.--------\n')
     raise
 else:
     logger.debug('--------Suiterans was successfully closed.--------\n')

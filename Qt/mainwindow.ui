@@ -137,7 +137,7 @@
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuSuiterans_v1_0_0">
+   <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
     </property>
@@ -146,7 +146,22 @@
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
-   <addaction name="menuSuiterans_v1_0_0"/>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <widget class="QMenu" name="menuHighlight_2">
+     <property name="title">
+      <string>Highlight</string>
+     </property>
+     <addaction name="action_None"/>
+     <addaction name="actionConflicting"/>
+     <addaction name="actionDuplicating"/>
+    </widget>
+    <addaction name="menuHighlight_2"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuView"/>
   </widget>
   <action name="actionOpen_pak_files">
    <property name="enabled">
@@ -167,6 +182,30 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="action_None">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>(None)</string>
+   </property>
+  </action>
+  <action name="actionConflicting">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Conflicting</string>
+   </property>
+  </action>
+  <action name="actionDuplicating">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Duplicating</string>
    </property>
   </action>
  </widget>
