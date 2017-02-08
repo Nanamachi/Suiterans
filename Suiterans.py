@@ -16,6 +16,32 @@ import binaryViewer
 from customErr import *
 from loginit import *
 
+class QPakMan(QG.QStandardItemModel, core.PakSuiteManager):
+    def __init__(self):
+        super().__init__()
+
+        for name in self._paksuites:
+            ps = self._paksuites[name]
+            Qtps = QG.QStandardItem()
+            Qtps.setIcon(QG.QIcon(_op.join(sys.path[0],'resources/pak64d2.png')))
+            Qtps.setText(
+                ps.name + ' - ' + str(ps.amount) + ' pak files\n'
+                + ps.path_main
+            )
+            Qtps.setData(ps)
+            self.appendRow(Qtps)
+
+    def addNewPakSuite(self, name, path, overwrite = False):
+        super().addNewPakSuite(name, path, overwrite)
+        ps = self._paksuites[name]
+        Qtps = QG.QStandardItem()
+        Qtps.setText(
+            ps.name + ' - ' + str(ps.amount) + ' pak files\n'
+            + ps.path_main
+        )
+        Qtps.setData(ps)
+        self.appendRow(Qtps)
+
 class Viewer(QW.QMainWindow):
 
     def __init__(self):
@@ -27,10 +53,9 @@ class Viewer(QW.QMainWindow):
         self.ui = wi.Ui_MainWindow()
         self.ui.setupUi(self)
 
-        self.paksuites_model = QG.QStandardItemModel(0,1)
-        for ps in core.read_paksuites():
-            self.append_paksuite(ps)
-        self.ui.folderlist.setModel(self.paksuites_model)
+        self.pakman = QPakMan()
+        self.ui.folderlist.setIconSize(QC.QSize(48,48))
+        self.ui.folderlist.setModel(self.pakman)
 
         header_model = QG.QStandardItemModel(0,3)
         header_list = [QG.QStandardItem() for i in range(3)]
@@ -75,12 +100,6 @@ class Viewer(QW.QMainWindow):
         )
 
         logger.debug('Viewer successfully initialized.')
-
-    def append_paksuite(self, ps):
-        Qtps = QG.QStandardItem()
-        Qtps.setText(ps.name + ' | ' + str(ps.amount) + ' pak files')
-        Qtps.setData(ps)
-        self.paksuites_model.appendRow(Qtps)
 
     def show_paksuite(self,paksuiteIndex):
 
@@ -129,11 +148,10 @@ class Viewer(QW.QMainWindow):
 
 
         self.ui.paklist.setModel(paklists_model)
-        self.draw_highlight()
-        self.ui.progressBar.setValue(0)
-
         for i in range(3):
             self.ui.paklist.resizeColumnToContents(i)
+        self.draw_highlight()
+        self.ui.progressBar.setValue(0)
 
     def show_obj(self,objIndex):
         obj = objIndex.data(QC.Qt.UserRole | 0x01)
@@ -197,8 +215,7 @@ class Viewer(QW.QMainWindow):
         )
         if isAdd:
             try:
-                newps = core.write_paksuite(name, pakfolder)
-                self.append_paksuite(newps)
+                newps = self.pakman.addNewPakSuite(name, pakfolder)
                 status = 'success'
             except FileExistsError:
                 logger.info('PakSuite name duplicates.')
@@ -214,8 +231,7 @@ class Viewer(QW.QMainWindow):
                     QW.QMessageBox.No
                 )
                 if a == QW.QMessageBox.Yes:
-                    newps = core.write_paksuite(name, pakfolder, True)
-                    self.append_paksuite(newps)
+                    newps = self.pakman.addNewPakSuite(name, pakfolder, True)
                     status = 'success'
                 elif a == QW.QMessageBox.No:
                     status = 'inherit'

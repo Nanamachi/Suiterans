@@ -2,9 +2,6 @@
 import sys
 import struct
 import os
-import PyQt5.QtCore as QC
-import PyQt5.QtGui as QG
-import PyQt5.QtWidgets as QW
 
 import lib
 from customErr import *
