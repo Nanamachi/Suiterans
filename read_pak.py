@@ -2,9 +2,6 @@
 import sys
 import struct
 import os
-import PyQt5.QtCore as QC
-import PyQt5.QtGui as QG
-import PyQt5.QtWidgets as QW
 
 import lib
 from customErr import *
@@ -32,6 +29,7 @@ class PakFile(): #read .pak and extract into PakNode instance
 
             _fp.close()
         except Exception as e:
+            logger.error('Cannot spawn %s.', self.name)
             logger.exception(e)
             raise
 
@@ -79,24 +77,25 @@ class PakNode():
 
         #set name and author from child TEXTNode
         if self.type in lib.named_obj:
-            for c in self.child:
-                if type(c) == CURSNode:
-                    _name_node   = c.child[0]
-                    _author_node = c.child[1]
-                    break
+            nameNode = self.searchNode('TEXT', pos = 0)
+            if isinstance(nameNode, TEXTNode):
+                s = nameNode.text if nameNode.text != ''\
+                    else '__UnDefined__'
             else:
-                _name_node   = self.child[0]
-                _author_node = self.child[1]
+                s = '__UnDefined__'
+            self.name = s
 
-            self.name = _name_node.text
-            if (type(_author_node) == TEXTNode):
-                self.author = _author_node.text
-            if not getattr(self, 'author', ''):
-                self.author = '__UnDefined__'
+            authorNode = self.searchNode('TEXT', pos = 1)
+            if isinstance(authorNode, TEXTNode):
+                s = authorNode.text if authorNode.text != ''\
+                    else '__UnDefined__'
+            else:
+                s = '__UnDefined__'
+            self.author = s
 
         elif self.type == 'FACT':
-            self.name   = self.child[0].name
-            self.author = self.child[0].author
+            self.name   = self.searchNode('BUIL').name
+            self.author = self.searchNode('BUIL').author
 
         curs = self.searchNode('CURS')
         if curs != None:
@@ -196,7 +195,8 @@ class PakNode():
 
         #get version
         [dump, self.remain_len] = self.read_LE(fp, 'uint16', self.remain_len)
-        self.version = dump & 0x7FFF if dump & 0x8000 else 0
+        self.version = dump & 0x00FF if dump & 0x8000 else 0
+        self.experimental = True if dump & 0x4000 else False
         if self.version == 0:
             fp.seek(-2, 1)
             self.remain_len += 2

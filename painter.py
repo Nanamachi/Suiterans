@@ -131,7 +131,7 @@ def paint(qimg, imgnode, origpos):
             else:
                 if data >= 0x8000: #if special color
                     color_index = data & 0x1F
-                    color = QG.QColor(lib.special_color[color_index])
+                    color = QG.QColor(lib.specialColor[color_index])
                 else:
                     colorR = (data >> 10) << 3
                     colorG = ((data >> 5) & 0x1F) << 3

@@ -10,10 +10,14 @@ options = {
     'optimize' : 2,
     'includes' : ['sip',],
     'build_exe' : 'Suiterans',
-    'include_files' : "locale/",
+    'include_files' : ["locale/", "resources/"],
 }
 
-exe = Executable(script = 'Suiterans.py', base = base)
+exe = Executable(
+    script = 'Suiterans.py',
+    base = base,
+    icon = 'resources/Suiterans.ico'
+)
 
 setup(
     name = "Suiterans",
