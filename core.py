@@ -7,6 +7,7 @@ import json
 from collections import OrderedDict
 
 import read_pak
+import lib
 from customErr import *
 from loginit import *
 
@@ -15,9 +16,9 @@ _op = os.path
 class PakSuite():
 
     def __init__(self, **configs):
-        self.path_main = configs['dir']
-        self.path_root, self.dirname = _op.split(configs['dir'])
-        self.name = configs['name']
+        for confn in configs:
+            setattr(self, confn, configs[confn])
+        self.path_root, self.dirname = _op.split(configs['path_main'])
         if configs['singleuser']:
             self.path_addon = _op.join(
                 self.path_root, 'addons', self.dirname
@@ -48,6 +49,33 @@ class PakSuite():
                 _op.basename(pakf_path)
             )
 
+    def getSize(self, force = False):
+        if not hasattr(self, 'size') or force:
+            outsidepath = _op.join(
+                self.path_main,
+                'ground.Outside.pak'
+            )
+            ret = read_pak.PakFile(outsidepath).root.desc(0,2,0,0).width
+            self.size = ret
+        return self.size
+
+    def isValid(self):
+        outsidepath = _op.join(
+            self.path_main,
+            'ground.Outside.pak'
+        )
+
+        ret = False
+        if _op.isfile(outsidepath):
+            try:
+                size = read_pak.PakFile(outsidepath).root.desc(0,2,0,0).width
+            except Exception as e:
+                pass
+            else:
+                ret = True
+
+        return ret
+
     def __repr__(self):
         return "<Suiterans PakSuite: " +self.path_main+ ">"
 
@@ -64,23 +92,24 @@ class SimplePakSuite(PakSuite):
 class PakSuiteManager():
 
     def __init__(self):
-        self._paksuites = OrderedDict()
+        self._paksuites = {}
         configfs = glob.glob(_op.join(sys.path[0], 'conf/*.conf'))
         for configfn in configfs:
-            self.addPakSuite(configfn)
+            self.loadPakSuite(configfn)
 
         return None
 
-    def addPakSuite(self, configfn):
+    def loadPakSuite(self, configfn):
         configf = codecs.open(configfn, 'r', 'utf-8')
         configs = json.load(configf, encoding = 'utf-8')
         configf.close()
         ps = PakSuite(**configs)
-        if not self.isPakSuiteValid(ps):
+        if not ps.isValid():
             raise NotPakSuiteError(ps.path_main)
         else:
-            ps.size = self.isPakSuiteValid(ps, getsize = True)
-            self._paksuites[ps.name] = ps
+            ps.getSize()
+
+        self.refreshPakSuite(ps)
 
         return None
 
@@ -104,12 +133,44 @@ class PakSuiteManager():
             else:
                 singleuser = False
                 simuconff.close()
+        self._writePakSuiteConf(
+            path_main = path,
+            name = name,
+            singleuser = singleuser,
+            isHalfSlope = None
+        )
+        self.loadPakSuite(configfn)
 
-        configs = {'dir':path, 'name':name, 'singleuser':singleuser}
-        ps = PakSuite(**configs)
+        return None
 
-        if not self.isPakSuiteValid(ps):
-            raise NotPakSuiteError(path)
+    def setPakSuiteConf(self, name, **configs):
+        configs['name'] = name
+        self._writePakSuiteConf(**configs)
+        ps = self._paksuites[name]
+        for key in configs:
+            setattr(ps, key, configs[key])
+        self.refreshPakSuite(ps)
+
+    def refreshPakSuite(self, ps):
+        self._paksuites[ps.name] = ps
+
+    def _writePakSuiteConf(self, **configs):
+        configfn = _op.join(sys.path[0], 'conf/', configs['name'] + '.conf')
+
+        if configs['name'] not in self._paksuites:
+            ps = PakSuite(**configs)
+
+            if not ps.isValid():
+                del ps
+                raise NotPakSuiteError(configs['path_main'])
+
+        else:
+            ps = self._paksuites[configs['name']]
+            for s in lib.paksuite_param:
+                if s in configs:
+                    setattr(self._paksuites[configs['name']], s, configs[s])
+                else:
+                    configs[s] = getattr(self._paksuites[configs['name']], s)
 
         configf = codecs.open(configfn, 'w', 'utf-8')
         json.dump(
@@ -119,45 +180,12 @@ class PakSuiteManager():
         )
         configf.close()
 
-        self.addPakSuite(configfn)
-
         return None
 
     def removePakSuite(self, name):
         configfn = _op.join(sys.path[0], 'conf/', name + '.conf')
         os.remove(configfn)
         del self.paksuites[name]
-
-    def isPakSuiteValid(self, arg, getsize = False):
-        if isinstance(arg, str):
-            outsidepath = _op.join(
-                self._paksuites[arg].path_main,
-                'ground.Outside.pak'
-            )
-        elif isinstance(arg, PakSuite):
-            outsidepath = _op.join(
-                arg.path_main,
-                'ground.Outside.pak'
-            )
-        else:
-            raise TypeError('isPakSuiteValid needs str or PakSuite. Not {}'
-                .format(type(arg)))
-
-        ret = False
-        if _op.isfile(outsidepath):
-            try:
-                size = read_pak.PakFile(outsidepath).root.desc(0,2,0,0).width
-            except Exception as e:
-                pass
-            else:
-                if getsize:
-                    ret = size
-                else:
-                    ret = True
-        else:
-            logger.debug(outsidepath)
-
-        return ret
 
 if __name__ == '__main__':
     pass

@@ -5,6 +5,19 @@ VERSION = 'v1.0.0'
 
 translate = lambda x,y: y
 
+paksuite_param = (
+    'name',
+    'path_main',
+    'singleuser',
+    'isHalfSlope',
+
+    'amount',
+    'size',
+    'path_root',
+    'dirname'
+    'path_addon'
+)
+
 named_obj = (
     'BRDG',
     'BUIL',

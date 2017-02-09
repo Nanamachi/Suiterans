@@ -36,46 +36,59 @@ import binaryViewer
 from customErr import *
 from loginit import *
 
-class QPakMan(QG.QStandardItemModel, core.PakSuiteManager):
-    def __init__(self):
-        super().__init__()
+class QPakSuite(QG.QStandardItem, core.PakSuite):
+    def __init__(self, arg):
+        if type(arg) == dict:
+            super().__init__(**arg)
+        elif isinstance(arg, core.PakSuite):
+            d = {}
+            logger.debug(arg.path_main)
+            for s in lib.paksuite_param:
+                d[s] = getattr(arg, s, None)
+            logger.debug(d)
+            super().__init__(**d)
+        else:
+            raise TypeError('QPakSuite needs dict or core.PakSuite. not', type(arg))
+        self.refreshAppearance()
 
-        for name in self._paksuites:
-            ps = self._paksuites[name]
-            Qtps = QG.QStandardItem()
-            if hasattr(ps, 'icon'):
-                icopath = _op.join(
-                    sys.path[0],
-                    'resources/'+ ps.icon +'.png'
-                )
-            elif ps.size in [64, 128]:
-                icopath = _op.join(
-                    sys.path[0],
-                    'resources/pak'+ str(ps.size) +'n.png'
-                )
-            else:
-                icopath = _op.join(
-                    sys.path[0],
-                    'resources/paketcn.png'
-                )
-            Qtps.setIcon(QG.QIcon(icopath))
-            Qtps.setText(
-                ps.name + ' - ' + str(ps.amount) + ' pak files\n'
-                + ps.path_main
-            )
-            Qtps.setData(ps)
-            self.appendRow(Qtps)
+    def refreshAppearance(self):
+        icopath = _op.join(sys.path[0], 'resources/')
+        b1 = getattr(self, 'isHalfSlope', None)
+        b2 = self.size in [64,128]
 
-    def addNewPakSuite(self, name, path, overwrite = False):
-        super().addNewPakSuite(name, path, overwrite)
-        ps = self._paksuites[name]
-        Qtps = QG.QStandardItem()
-        Qtps.setText(
-            ps.name + ' - ' + str(ps.amount) + ' pak files\n'
-            + ps.path_main
+        if b1 == None: #if there is no data whether halfslope:
+            suffix = 'n'
+        elif b1: #if halfslope:
+            suffix = 'h'
+        else:
+            suffix = 'd'
+
+        if b2:
+            paksize = str(self.size)
+        else:
+            paksize = 'etc'
+
+        icopath = _op.join(icopath, 'pak' + paksize + suffix + '.png')
+
+        self.setIcon(QG.QIcon(icopath))
+        self.setText(
+            self.name + ' - ' + str(self.amount) + ' pak files\n'
+            + self.path_main
         )
-        Qtps.setData(ps)
-        self.appendRow(Qtps)
+
+class QPakMan(QG.QStandardItemModel, core.PakSuiteManager):
+
+    def refreshPakSuite(self, ps):
+        if type(ps) == core.PakSuite:
+            Qps = QPakSuite(ps)
+        elif type(ps) == QPakSuite:
+            Qps = ps
+        else:
+            raise TypeError("refreshPakSuite needs PakSuite or QPakSuite. not", type(ps))
+        Qps.refreshAppearance()
+        if Qps.name not in self._paksuites:
+            self.appendRow(Qps)
+        super().refreshPakSuite(Qps)
 
 class Viewer(QW.QMainWindow):
 
@@ -138,7 +151,7 @@ class Viewer(QW.QMainWindow):
 
     def show_paksuite(self,paksuiteIndex):
 
-        self.paksuite = paksuiteIndex.data(QC.Qt.UserRole | 0x01)
+        self.paksuite = paksuiteIndex.model().itemFromIndex(paksuiteIndex)
 
         if not hasattr(self.paksuite, 'pak') \
             or self.paksuite.get_amount() != self.paksuite.amount:
@@ -181,6 +194,20 @@ class Viewer(QW.QMainWindow):
                         paklists_model.itemFromIndex(r1).isDuplicate = True
                         paklists_model.itemFromIndex(r2).isDuplicate = True
 
+        lightTexture = paklists_model.match(
+            paklists_model.index(0,1),
+            0,
+            'LightTexture',
+            flags = QC.Qt.MatchExactly
+        )
+        if lightTexture[0].data(QC.Qt.UserRole | 0x01).desc(2).child_count == 16:
+            isHalfSlope = False
+        else:
+            isHalfSlope = True
+
+        if getattr(self.paksuite, 'isHalfSlope', None) != isHalfSlope:
+            logger.debug("%s, %s", getattr(self.paksuite, 'isHalfSlope', None), isHalfSlope)
+            self.pakman.setPakSuiteConf(self.paksuite.name, isHalfSlope = isHalfSlope)
 
         self.ui.paklist.setModel(paklists_model)
         for i in range(3):
