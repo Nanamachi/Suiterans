@@ -1,7 +1,7 @@
 # -*- coding= utf-8 -*-
 from colordef import *
 
-VERSION = 'v1.0.0'
+VERSION = 'v0.5.0'
 
 translate = lambda x,y: y
 
