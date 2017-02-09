@@ -1,7 +1,22 @@
 # -*- coding= utf-8 -*-
-VERSION = 'v1.0.0'
+from colordef import *
+
+VERSION = 'v0.5.0'
 
 translate = lambda x,y: y
+
+paksuite_param = (
+    'name',
+    'path_main',
+    'singleuser',
+    'isHalfSlope',
+
+    'amount',
+    'size',
+    'path_root',
+    'dirname'
+    'path_addon'
+)
 
 named_obj = (
     'BRDG',
@@ -143,42 +158,6 @@ displayable_node = (
     'wt_p_unit',
     'xz_anm_t',
     'version',
-)
-
-special_color = (
-    0x244B67, # Player color 1
-    0x395E7C,
-    0x4C7191,
-    0x6084A7,
-    0x7497BD,
-    0x88ABD3,
-    0x9CBEE9,
-    0xB0D2FF,
-
-    0x7B5803, # Player color 2
-    0x8E6F04,
-    0xA18605,
-    0xB49D07,
-    0xC6B408,
-    0xD9CB0A,
-    0xECE20B,
-    0xFFF90D,
-
-    0x57656F, # Dark windows, lit yellowish at night
-    0x7F9BF1, # Lighter windows, lit blueish at night
-    0xFFFF53, # Yellow light
-    0xFF211D, # Red light
-    0x01DD01, # Green light
-    0x6B6B6B, # Non-darkening grey 1 (menus)
-    0x9B9B9B, # Non-darkening grey 2 (menus)
-    0xB3B3B3, # non-darkening grey 3 (menus)
-    0xC9C9C9, # Non-darkening grey 4 (menus)
-    0xDFDFDF, # Non-darkening grey 5 (menus)
-    0xE3E3FF, # Nearly white light at day, yellowish light at night
-    0xC1B1D1, # Windows, lit yellow
-    0x4D4D4D, # Windows, lit yellow
-    0xFF017F, # purple light
-    0x0101FF, # blue light
 )
 
 BRDGparam = (

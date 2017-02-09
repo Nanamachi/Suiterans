@@ -1,4 +1,24 @@
 ﻿# -*- coding: utf-8 -*-
+
+#     Suiterans --- Simutrans add-on manager
+#
+#     Copyright (C) 2017 Nanamachi
+#
+#     This program is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This program is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#     contact: town7.haruki@gmail.com or twitter:@town7_haruki
+
 import sys
 import glob
 import os
@@ -16,71 +36,122 @@ import binaryViewer
 from customErr import *
 from loginit import *
 
+class QPakSuite(QG.QStandardItem, core.PakSuite):
+    def __init__(self, arg):
+        if type(arg) == dict:
+            super().__init__(**arg)
+        elif isinstance(arg, core.PakSuite):
+            d = {}
+            logger.debug(arg.path_main)
+            for s in lib.paksuite_param:
+                d[s] = getattr(arg, s, None)
+            logger.debug(d)
+            super().__init__(**d)
+        else:
+            raise TypeError('QPakSuite needs dict or core.PakSuite. not', type(arg))
+        self.refreshAppearance()
+
+    def refreshAppearance(self):
+        icopath = _op.join(sys.path[0], 'resources/')
+        b1 = getattr(self, 'isHalfSlope', None)
+        b2 = self.size in [64,128]
+
+        if b1 == None: #if there is no data whether halfslope:
+            suffix = 'n'
+        elif b1: #if halfslope:
+            suffix = 'h'
+        else:
+            suffix = 'd'
+
+        if b2:
+            paksize = str(self.size)
+        else:
+            paksize = 'etc'
+
+        icopath = _op.join(icopath, 'pak' + paksize + suffix + '.png')
+
+        self.setIcon(QG.QIcon(icopath))
+        self.setText(
+            self.name + ' - ' + str(self.amount) + ' pak files\n'
+            + self.path_main
+        )
+
+class QPakMan(QG.QStandardItemModel, core.PakSuiteManager):
+
+    def refreshPakSuite(self, ps):
+        if type(ps) == core.PakSuite:
+            Qps = QPakSuite(ps)
+        elif type(ps) == QPakSuite:
+            Qps = ps
+        else:
+            raise TypeError("refreshPakSuite needs PakSuite or QPakSuite. not", type(ps))
+        Qps.refreshAppearance()
+        if Qps.name not in self._paksuites:
+            self.appendRow(Qps)
+        super().refreshPakSuite(Qps)
+
 class Viewer(QW.QMainWindow):
 
     def __init__(self):
 
         logger.debug('Viewer init start...')
 
-        try:
-            super().__init__()
+        super().__init__()
 
-            self.windows = []
+        self.ui = wi.Ui_MainWindow()
+        self.ui.setupUi(self)
 
-            self.ui = wi.Ui_MainWindow()
-            self.ui.setupUi(self)
+        self.pakman = QPakMan()
+        self.ui.folderlist.setIconSize(QC.QSize(48,48))
+        self.ui.folderlist.setModel(self.pakman)
 
-            self.paksuites_model = QG.QStandardItemModel(0,1)
-            for ps in core.read_paksuites():
-                self.append_paksuite(ps)
-            self.ui.folderlist.setModel(self.paksuites_model)
+        header_model = QG.QStandardItemModel(0,3)
+        header_list = [QG.QStandardItem() for i in range(3)]
+        for i, c in enumerate(['type', 'object name', 'file name']):
+            header_list[i].setText(c)
+        header_model.appendRow(header_list)
+        self.ui.paklist.horizontalHeader().setModel(header_model)
 
-            header_model = QG.QStandardItemModel(0,3)
-            header_list = [QG.QStandardItem() for i in range(3)]
-            for i, c in enumerate(['type', 'object name', 'file name']):
-                header_list[i].setText(c)
-            header_model.appendRow(header_list)
-            self.ui.paklist.horizontalHeader().setModel(header_model)
+        self.ui.actionAdd_Simutrans_pak_folder.triggered.connect(
+            SLM('Viewer', self.select_folder)
+        )
+        self.ui.actionOpen_pak_files.triggered.connect(
+            SLM('Viewer', self.select_file)
+        )
+        self.ui.actionExit.triggered.connect(app.quit)
 
-            self.ui.folderlist.doubleClicked.connect(
-                SLM('Viewer', self.show_paksuite)
-            )
+        actionHighlight = QW.QActionGroup(self)
+        actionHighlight.addAction(self.ui.action_None)
+        actionHighlight.addAction(self.ui.actionConflicting)
+        actionHighlight.addAction(self.ui.actionDuplicating)
+        self.ui.action_None.triggered.connect(
+            SLM('Viewer', self.setHighlight, 'None')
+        )
+        self.ui.actionConflicting.triggered.connect(
+            SLM('Viewer', self.setHighlight, 'Conflicting')
+        )
+        self.ui.actionDuplicating.triggered.connect(
+            SLM('Viewer', self.setHighlight, 'Duplicating')
+        )
+        self.setHighlight('None')
+        self.ui.action_None.setChecked(True)
 
-            self.ui.actionAdd_Simutrans_pak_folder.triggered.connect(
-                SLM('Viewer', self.select_folder)
-            )
-            self.ui.actionOpen_pak_files.triggered.connect(
-                SLM('Viewer', self.select_file)
-            )
-            self.ui.actionExit.triggered.connect(app.quit)
+        self.ui.folderlist.doubleClicked.connect(
+        SLM('Viewer', self.show_paksuite)
+        )
 
-            self.ui.paklist.clicked.connect(
-                SLM('Viewer', self.show_obj)
-            )
-            self.ui.paklist.doubleClicked.connect(
-                SLM('Viewer', self.spawn_ntviewer)
-            )
-        except Exception as e:
-            logger.critical(
-                "Unexpected error occured. Program Stop...\n"\
-                + "{}: {}"
-                .format(type(e), e.args)
-            )
-            logger.exception(e)
-            raise
+        self.ui.paklist.clicked.connect(
+            SLM('Viewer', self.show_obj)
+        )
+        self.ui.paklist.doubleClicked.connect(
+            SLM('Viewer', self.spawn_ntviewer)
+        )
 
-        else:
-            logger.debug('Viewer successfully initialized.')
-
-    def append_paksuite(self, ps):
-        Qtps = QG.QStandardItem()
-        Qtps.setText(ps.name + ' | ' + str(ps.amount) + ' pak files')
-        Qtps.setData(ps)
-        self.paksuites_model.appendRow(Qtps)
+        logger.debug('Viewer successfully initialized.')
 
     def show_paksuite(self,paksuiteIndex):
 
-        self.paksuite = paksuiteIndex.data(0x0101)
+        self.paksuite = paksuiteIndex.model().itemFromIndex(paksuiteIndex)
 
         if not hasattr(self.paksuite, 'pak') \
             or self.paksuite.get_amount() != self.paksuite.amount:
@@ -100,37 +171,63 @@ class Viewer(QW.QMainWindow):
 
         for pakfile in self.paksuite.pak:
             for obj in pakfile.root.child:
-                Qtpf = [QG.QStandardItem() for i in range(3)]
+                item = []
+                for s in [obj.type, obj.name, pakfile.name]:
+                    item.append(QG.QStandardItem(s))
+                    item[-1].setData(obj)
+                paklists_model.appendRow(item)
 
-                Qtpf[0].setText(obj.type)
-                if hasattr(obj, 'name'):
-                    Qtpf[1].setText(obj.name)
-                Qtpf[2].setText(pakfile.name)
+                item[1].isDuplicate = False
+                searchres = paklists_model.match(
+                    paklists_model.index(0, 1),
+                    0,
+                    obj.name,
+                    hits = 2,
+                    flags = QC.Qt.MatchExactly,
+                )
 
-                for i in range(3):
-                    Qtpf[i].setData(obj)
+                if len(searchres) > 1:
+                    r1 = searchres[0]
+                    r2 = item[1].index()
+                    if r1.sibling(r1.row(), 0).data()\
+                        == r1.sibling(r2.row(), 0).data():
+                        paklists_model.itemFromIndex(r1).isDuplicate = True
+                        paklists_model.itemFromIndex(r2).isDuplicate = True
 
-                paklists_model.appendRow(Qtpf)
+        lightTexture = paklists_model.match(
+            paklists_model.index(0,1),
+            0,
+            'LightTexture',
+            flags = QC.Qt.MatchExactly
+        )
+        if lightTexture[0].data(QC.Qt.UserRole | 0x01).desc(2).child_count == 16:
+            isHalfSlope = False
+        else:
+            isHalfSlope = True
+
+        if getattr(self.paksuite, 'isHalfSlope', None) != isHalfSlope:
+            logger.debug("%s, %s", getattr(self.paksuite, 'isHalfSlope', None), isHalfSlope)
+            self.pakman.setPakSuiteConf(self.paksuite.name, isHalfSlope = isHalfSlope)
 
         self.ui.paklist.setModel(paklists_model)
-        self.ui.progressBar.setValue(0)
-
         for i in range(3):
             self.ui.paklist.resizeColumnToContents(i)
+        self.draw_highlight()
+        self.ui.progressBar.setValue(0)
 
     def show_obj(self,objIndex):
-        obj = objIndex.data(0x0101)
+        obj = objIndex.data(QC.Qt.UserRole | 0x01)
 
         obj_model = QG.QStandardItemModel(0,2)
         for attr in lib.displayable_node:
             if hasattr(obj, attr):
-                Qtpo = [QG.QStandardItem() for i in range(2)]
-                Qtpo[0].setText(_translate('parameter', attr))
-                Qtpo[1].setText(_translate('parameter', str(getattr(obj, attr))))
+                row = [QG.QStandardItem() for i in range(2)]
+                row[0].setText(_translate('parameter', attr))
+                row[1].setText(_translate('parameter', str(getattr(obj, attr))))
 
-                Qtpo[0].setEditable(False)
-                Qtpo[1].setEditable(False)
-                obj_model.appendRow(Qtpo)
+                row[0].setEditable(False)
+                row[1].setEditable(False)
+                obj_model.appendRow(row)
 
         self.ui.pakinfo.setModel(obj_model)
 
@@ -180,8 +277,7 @@ class Viewer(QW.QMainWindow):
         )
         if isAdd:
             try:
-                newps = core.write_paksuite(name, pakfolder)
-                self.append_paksuite(newps)
+                newps = self.pakman.addNewPakSuite(name, pakfolder)
                 status = 'success'
             except FileExistsError:
                 logger.info('PakSuite name duplicates.')
@@ -197,8 +293,7 @@ class Viewer(QW.QMainWindow):
                     QW.QMessageBox.No
                 )
                 if a == QW.QMessageBox.Yes:
-                    newps = core.write_paksuite(name, pakfolder, True)
-                    self.append_paksuite(newps)
+                    newps = self.pakman.addNewPakSuite(name, pakfolder, True)
                     status = 'success'
                 elif a == QW.QMessageBox.No:
                     status = 'inherit'
@@ -232,6 +327,27 @@ class Viewer(QW.QMainWindow):
 
     def spawn_ntviewer(self, objIndex):
         NodeTreeViewer(self, objIndex).show()
+
+    def setHighlight(self, mode, *_):
+        self._highlight = mode
+        if hasattr(self, 'paksuite'):
+            self.draw_highlight()
+
+    def draw_highlight(self):
+        m = self.ui.paklist.model()
+
+        for i in range(m.rowCount()):
+            index = [m.index(i,j) for j in range(3)]
+            for j in index:
+                if self._highlight == 'Duplicating'\
+                    and m.itemFromIndex(index[1]).isDuplicate:
+                    m.itemFromIndex(j).setBackground(
+                        QG.QBrush(QG.QColor(0xffccff))
+                    )
+                else:
+                    m.itemFromIndex(j).setBackground(
+                        QG.QBrush(QG.QColor('white'))
+                    )
 
 class NodeTreeViewer(QW.QMainWindow):
     def __init__(self, parent = None, objIndex = None):
@@ -267,7 +383,7 @@ class NodeTreeViewer(QW.QMainWindow):
                 ret.appendRow(make_tree(c))
             return ret
 
-        obj = self.index.data(0x0101)
+        obj = self.index.data(QC.Qt.UserRole | 0x01)
         self.treeModel = QG.QStandardItemModel()
         self.treeModel.appendRow(make_tree(obj))
         self.tvview.TreeViewer.setModel(self.treeModel)
@@ -300,7 +416,7 @@ class NodeTreeViewer(QW.QMainWindow):
             imgmap = painter.paintobj(ico, 32)
             self.tvview.IconView.setPixmap(QG.QPixmap.fromImage(imgmap))
         else:
-            self.tvview.IconView.setText('')
+            self.tvview.IconView.setText(' ')
 
         return None
 
@@ -334,7 +450,7 @@ class NodeTreeViewer(QW.QMainWindow):
         return None
 
     def show_node(self, objIndex):
-        obj = objIndex.data(0x0101)
+        obj = objIndex.data(QC.Qt.UserRole | 0x01)
         if getattr(obj, 'type') == 'IMG':
             imgmap = painter.paintobj(obj,self.size)
             self.tvview.Interpreter.setPixmap(QG.QPixmap.fromImage(imgmap))
@@ -413,6 +529,7 @@ except Exception as e:
         .format(type(e), e.args)
     )
     logger.exception(e)
+    logger.debug('--------Suiterans was crashed.--------\n')
     raise
 else:
     logger.debug('--------Suiterans was successfully closed.--------\n')
