@@ -1,4 +1,24 @@
 ﻿# -*- coding: utf-8 -*-
+
+#     Suiterans --- Simutrans add-on manager
+#
+#     Copyright (C) 2017 Nanamachi
+#
+#     This program is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This program is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#     contact: town7.haruki@gmail.com or twitter:@town7_haruki
+
 import sys
 import glob
 import os
@@ -23,7 +43,22 @@ class QPakMan(QG.QStandardItemModel, core.PakSuiteManager):
         for name in self._paksuites:
             ps = self._paksuites[name]
             Qtps = QG.QStandardItem()
-            Qtps.setIcon(QG.QIcon(_op.join(sys.path[0],'resources/pak64d2.png')))
+            if hasattr(ps, 'icon'):
+                icopath = _op.join(
+                    sys.path[0],
+                    'resources/'+ ps.icon +'.png'
+                )
+            elif ps.size in [64, 128]:
+                icopath = _op.join(
+                    sys.path[0],
+                    'resources/pak'+ str(ps.size) +'n.png'
+                )
+            else:
+                icopath = _op.join(
+                    sys.path[0],
+                    'resources/paketcn.png'
+                )
+            Qtps.setIcon(QG.QIcon(icopath))
             Qtps.setText(
                 ps.name + ' - ' + str(ps.amount) + ' pak files\n'
                 + ps.path_main
