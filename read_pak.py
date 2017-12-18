@@ -1,7 +1,5 @@
-﻿# -*- coding: utf-8 -*-
-import sys
-import struct
-import os
+# -*- coding: utf-8 -*-
+from common_import import *
 
 import lib
 from customErr import *

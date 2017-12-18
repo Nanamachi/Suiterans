@@ -20,13 +20,7 @@
 #
 #     contact: town7.haruki@gmail.com or twitter:@town7_haruki
 
-import sys
-import glob
-import os
-import argparse
-import PyQt5.QtWidgets as QW
-import PyQt5.QtCore as QC
-import PyQt5.QtGui as QG
+from common_import import *
 
 import Qt.mainwindow as wi
 import Qt.treeviewer as tv

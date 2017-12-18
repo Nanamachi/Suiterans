@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-from logging import getLogger, Formatter
-from logging.handlers import RotatingFileHandler
-from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL
-import os
-import sys
+from common_import import *
 
 _op = os.path
 

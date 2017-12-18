@@ -1,10 +1,5 @@
 # -*- coding: utf-8 -*-
-import sys
-import os
-import glob
-import codecs
-import json
-from collections import OrderedDict
+from common_import import *
 
 import read_pak
 import lib

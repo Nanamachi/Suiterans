@@ -1,10 +1,5 @@
 # -*- coding: utf-8 -*-
-import sys
-import math
-
-import PyQt5.QtGui as QG
-import PyQt5.QtCore as QC
-import PyQt5.QtWidgets as QW
+from common_import import *
 
 import lib
 from loginit import *
