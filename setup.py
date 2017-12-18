@@ -8,7 +8,10 @@ base = 'Win32GUI' if sys.platform == 'win32' else None
 
 options = {
     'optimize' : 2,
-    'includes' : ['sip',],
+    'includes' : [
+        'sip',
+        'PyQt5'
+    ],
     'build_exe' : 'Suiterans',
     'include_files' : ["locale/", "resources/"],
 }
